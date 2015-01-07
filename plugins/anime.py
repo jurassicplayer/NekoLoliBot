@@ -72,8 +72,8 @@ def nyaa_search(search, category, filtering, sorting, ordering):
             search_sort = '1'
     else:
         search_sort = '1'
-    if order:
-        if order == 'Ascend':
+    if ordering:
+        if ordering == 'Ascend':
             search_order = '2'
         elif order == 'Descend':
             search_order = '1'
