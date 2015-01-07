@@ -79,6 +79,8 @@ def nyaa_search(search, category, filtering, sorting, ordering):
             search_order = '1'
         else:
             search_order = '1'
+    else:
+        search_order = '1'
     try:
         data = u.urlopen('http://www.nyaa.se/?page=search&cats='+search_cat+'&filter='+search_filter+'&sort='+search_sort+'&order='+search_order+'&term='+h.escape(search_term)+'&offset=1', None,15)
     except urllib.error.URLError:
