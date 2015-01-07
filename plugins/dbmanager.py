@@ -5,7 +5,7 @@ import pickle, re, logging
 class databaseManager():
     def load_database(user):
         try:
-            database = pickle.load(open('data/userdatabase', 'rb'))
+            database = pickle.load(open('data/user.db', 'rb'))
             userdb = database[user]
         except KeyError:
             print('KeyError, user not found. Adding new user. Remember to save database.')
@@ -29,16 +29,16 @@ class databaseManager():
         
     def save_database(user, new_userdb):
         try:
-            database = pickle.load(open('data/userdatabase', 'rb'))
+            database = pickle.load(open('data/user.db', 'rb'))
             database[user] = new_userdb
-            pickle.dump(database, open('data/userdatabase', 'wb'))
+            pickle.dump(database, open('data/user.db', 'wb'))
             logging.info('**dbm** Synced to database: <%s> %s' % (user, new_userdb))
         except:
             database = {user: new_userdb}
-            pickle.dump(database, open('data/userdatabase', 'wb'))
+            pickle.dump(database, open('data/user.db', 'wb'))
             logging.info('**dbm** Created new database: <%s> %s' % (user, new_userdb))
     def print_database():
-        database = pickle.load(open('data/userdatabase', 'rb'))
+        database = pickle.load(open('data/user.db', 'rb'))
         logging.info('**dbm** Printed database')
         print(database)
 
