@@ -2,7 +2,15 @@
 
 import template
 import re, time
+from multiprocessing import Pool
 
+
+def sleep(self, length, channel):
+    time.sleep(length)
+    chan = [channel]
+    self.join(chan)
+    time.sleep(2)
+    self.sendMsg(channel, "I'm sorry, I didn't mean what I said earlier. .·´¯`(>▂<)´¯`·.")
 
 class IRCScript(template.IRCScript):
     print('loaded stfu')
@@ -30,9 +38,8 @@ class IRCScript(template.IRCScript):
             if sleeper:
                 self.sendMsg(channel, "Fine! I didn't want to listen to you anyways! ヾ( ･`⌓´･)ﾉﾞ")
                 self.part(channel)
-                time.sleep(sleeper)
-                self.join(channel)
-                time.sleep(2)
-                self.sendMsg(channel, "I'm sorry, I didn't mean what I said earlier. .·´¯`(>▂<)´¯`·.")
+                pool = Pool(processes=1)
+                pool.apply_async(sleep, [self, sleeper, channel])
+                sleeper = None
             else:
                 self.sendMsg(channel, "I don't have to listen to you!")
