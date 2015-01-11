@@ -5,7 +5,7 @@ import logging
 
 class IRCScript(template.IRCScript):
     print('loaded logger')
-    logging.basicConfig(level=logging.DEBUG, filename="logfile", filemode="a+", format="%(asctime)-15s %(levelname)-8s %(message)s")
+    logging.basicConfig(level=logging.DEBUG, filename="system/logfile", filemode="a+", format="%(asctime)-15s %(levelname)-8s %(message)s")
     
     def privmsg(self, user, channel, msg):
         logging.info(' [%s] <%s> %s' % (channel, user, msg))
