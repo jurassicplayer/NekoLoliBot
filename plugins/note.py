@@ -62,7 +62,12 @@ class IRCScript(template.IRCScript):
             elif state == 'success':
                 self.sendMsg(channel, 'Removed '+str(cycles)+' note(s) from queue.')
         ## Checking notes ##
-        if re.match('\.', user, re.I) != 1:
-            all_notes = noteManager.show_note(user);
-            for notes in all_notes:
-                self.sendNotice(user, notes)
+        try:
+            if user.find('.') !=-1 or user.find('py-ctcp') !=-1:
+                pass
+            else:
+                all_notes = noteManager.show_note(user);
+                for notes in all_notes:
+                    self.sendNotice(user, notes)
+        except AttributeError:
+            pass

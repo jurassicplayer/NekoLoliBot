@@ -37,7 +37,13 @@ def last_seen(user):
 class IRCScript(template.IRCScript):
     print('loaded seen')
     def privmsg(self, user, channel, msg): 
-        update_seen(user);
+        try:
+            if user.find('.') !=-1 or user.find('py-ctcp') !=-1:
+                pass
+            else:
+                update_seen(user);
+        except AttributeError:
+            pass
         seen = re.match('^.seen\s(?P<user>[^\s]+)', msg, re.I)
         if seen:
             lastseen = last_seen(seen.group('user'));
@@ -50,6 +56,12 @@ class IRCScript(template.IRCScript):
             else:
                 self.sendMsg(channel, "I haven't seen them. Maybe I forgot.")
     def action(self, user, channel, msg): 
-        update_seen(user);
+        if user.find('.') !=-1 or user.find('py-ctcp') !=-1:
+            pass
+        else:
+            update_seen(user);
     def userJoined(self, user, channel):
-        update_seen(user);
+        if user.find('.') !=-1 or user.find('py-ctcp') !=-1:
+            pass
+        else:
+            update_seen(user);
