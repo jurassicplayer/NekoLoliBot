@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
 import os, sys, re
-
 import importlib as i
-plugin_dir = 'plugins'
-sys.path.append(plugin_dir)
+
+sys.path.append('system')
+sys.path.append('plugins')
+import config
+from ircClient import IRCClient as IRCClient
+
+
+## Plugin stuffs ##
 loaded_objects = {}
 loaded_plugins = {}
 def load_plugin(plugin):
@@ -15,37 +20,32 @@ def reload_plugin(plugin):
     module = i.reload(loaded_plugins[plugin])
     loaded_objects[plugin] = module.IRCScript(client)
 def reload_all_plugins():
-    for name in os.listdir(plugin_dir):
+    for name in os.listdir('plugins'):
         if name.endswith(".py") and name != 'template.py':
             module = name[:-3]
             load_plugin(module)
     for plugin in loaded_plugins:
         reload_plugin(plugin)
 
-HOST="irc.rizon.net"
-PORT=6667
-#HOST='irc.gbatemp.net'
-#PORT=4500
-NICK="NekoLoliBot"
-IDENT="NekoBot"
-REALNAME="NekoLoliBot"
-CHAN="#gbatemp.net"
-#CHAN='#CTSS'
-CHAN="#RandStr"
-#CHAN='#NekoLoliBot'
 
-sys.path.append('system')
-from ircClient import IRCClient as IRCClient
-if __name__ == '__main__':
-    #Instantiate a client
-    client = IRCClient(HOST, PORT, NICK, IDENT, REALNAME, CHAN);
-    reload_all_plugins();
-    #Connect client to server
+## IRC stuffs ##
+def connect_all(HOST, PORT, NICK, IDENT, REALNAME, CHANNELS):
+    client = IRCClient(HOST, PORT, NICK, IDENT, REALNAME, CHANNELS);
     client.connect();
     client.nick(NICK);
-    client.identify();
-    client.join(CHAN);
-    client.sendMsg(CHAN, 'Hai everyone~!');
+    client.user();
+    client.join(CHANNELS);
+    if config.GREETER:
+        for channel in CHANNELS:
+            client.privmsg(channel, config.GREET_TXT)
+    return client
+    
+
+
+if __name__ == '__main__':
+    #Instantiate a client
+    client = connect_all(config.HOST, config.PORT, config.NICK, config.IDENT, config.REALNAME, config.CHANNELS);
+    reload_all_plugins();
     
     connected = 0
     while 1:
@@ -55,79 +55,33 @@ if __name__ == '__main__':
         except UnicodeDecodeError:
             pass
         for line in temp:
-            ## Deconstruct line here into tokens to pass to plugins ##
-            message = re.match("^:(?P<domain>([^\s]+))\s(?P<type>([^\s]+))\s(?P<channel>([^\s]+))\s:(?P<message>.*)", line, re.I)
-            if message:
-                user = message.group('domain').split('!',1)[0]
-                msg = message.group('message')
-                channel = message.group('channel')
-                msgtype = message.group('type')
-            print(line.encode('utf-8'))
-            
             ## Hunt for first connect and make absolutely sure we connected to the channel
             if line.find('PING') !=-1 and connected == 0:
-                client.join(CHAN);
+                client.join(config.CHANNELS);
             elif line.find('JOIN') !=-1 and line.find(client.NICK) !=-1:
                 connected = 1
             elif connected == 1:
                 pass
-                
-            ## PING Response ##
-            if line.find('PING') !=-1:
-                client.pong(line)
-            if line.find('\x01VERSION\x01') !=-1:
-                client.sendNotice(user, '\x01VERSION NekoLoliBot [Python3] -alpha-\x01\r\n')
-            
-            if line.find('!reload') !=-1:
-                reload_all_plugins()
             
             
             ## Search for all IRC commands ##
-            if line.find('PRIVMSG') !=-1:
-                if line.find('ACTION') !=-1:
-                    for module in loaded_plugins:
-                        loaded_objects[module].action(user, channel, msg[8:-1])
-                else:
-                    for module in loaded_plugins:
-                        loaded_objects[module].privmsg(user, channel, msg)
-            if line.find('NOTICE') !=-1:
-                for module in loaded_plugins:
-                    loaded_objects[module].notice(user, msg)
-            if line.find('JOIN') !=-1:
-                if line.find(client.NICK) !=-1:
-                    for module in loaded_plugins:
-                        loaded_objects[module].joined(client.NICK, channel)
-                else:
-                    ## Deconstruct message to obtain joiner
-                    joinee = re.match("^:(?P<user>.*?)\!(?P<ident>.*?)@(?P<maskedhost>.*?)\s(?P<type>(\w+))\s(?P<target>.*?)(?P<message>.*?)", line, re.I)
-                    if joinee:
-                        joiner = joinee.group('user')
-                        for module in loaded_plugins:
-                            loaded_objects[module].userJoined(joiner, channel)
             if line.find('NICK ') !=-1:
                 nickuser = re.match("^:(?P<user>.*?)\!(?P<ident>.*?)@(?P<maskedhost>.*?)\s(?P<type>(\w+))\s:(?P<target>.*)", line, re.I)
                 user = nickuser.group('user')
                 target = nickuser.group('target')
                 for module in loaded_plugins:
                     loaded_objects[module].nickSwap(user, target, channel)
-            if line.find('PART') !=-1:
-                if line.find(client.NICK) !=-1:
-                    for module in loaded_plugins:
-                        loaded_objects[module].left(user, channel)
-                else:
-                    for module in loaded_plugins:
-                        loaded_objects[module].userLeft(user, channel)
             if line.find('QUIT') !=-1:
                 for module in loaded_plugins:
                     loaded_objects[module].userQuit(user, msg)
-            if msgtype == 'KICK':
-                ## Deconstruct message to obtain kicker, kickee, and message
-                kicked = re.match("^:(?P<kicker>.*?)\!(?P<ident>.*?)@(?P<maskedhost>.*?)\s(?P<type>(\w+))\s(?P<target>.*?)\s(?P<kickee>.*?)\s:(?P<message>.*)", line, re.I)
-                if kicked and kicked.group('kickee') != client.NICK:
-                    for module in loaded_plugins:
-                        loaded_objects[module].userKicked(kicked.group('kickee'), channel, kicked.group('kicker'), kicked.group('message'))
-                else:
-                    connected = 0
+#            if msgtype == 'KICK':
+#                ## Deconstruct message to obtain kicker, kickee, and message
+#                kicked = re.match("^:(?P<kicker>.*?)\!(?P<ident>.*?)@(?P<maskedhost>.*?)\s(?P<type>(\w+))\s(?P<target>.*?)\s(?P<kickee>.*?)\s:(?P<message>.*)", line, re.I)
+#                if kicked and kicked.group('kickee') != client.NICK:
+#                    for module in loaded_plugins:
+#                        loaded_objects[module].userKicked(kicked.group('kickee'), channel, kicked.group('kicker'), kicked.group('message'))
+#                else:
+#                    connected = 0
             if line.find('MODE') !=-1:
                 modeMsg = re.match("^:(?P<mod>.*?)\!(?P<ident>.*?)@(?P<maskedhost>.*?)\s(?P<type>(\w+))\s(?P<channel>.*?)\s(?P<mode>.*?)\s(?P<user>.*)", line, re.I)
                 if modeMsg:
@@ -137,3 +91,124 @@ if __name__ == '__main__':
                     mode = modeMsg.group('mode')
                     for module in loaded_plugins:
                         loaded_objects[module].userMode(mod, user, channel, mode)
+            
+            
+            
+            if line.find('PING') !=-1:
+                print('ping')
+                client.pong(line)
+            if line.find('!reload') !=-1:
+                reload_all_plugins()
+            message = re.match('^:((?P<user>[^\!]+)\!~(?P<ident>[^@]+)@(?P<userhost>[^\s]+)|(?P<domain>([^\s]+)))\s(?P<type>([^\s]+))\s((?P<target>([^\s]+))\s(?P<message>.*)|(?P<info>.*))', line, re.I)
+            if message:
+                print(line.encode('utf-8'))
+                if message.group('type') == '001':
+                    print('server welcome')
+                elif message.group('type') == '002':
+                    print('server version')
+                elif message.group('type') == '003':
+                    print('server created')
+                elif message.group('type') == '004':
+                    print('something')
+                elif message.group('type') == '005':
+                    print('server cmds supported')
+                elif message.group('type') == '042':
+                    print('unique ID')
+                elif message.group('type') == '251':
+                    print('users on servers')
+                elif message.group('type') == '252':
+                    print('IRCOps Online')
+                elif message.group('type') == '253':
+                    print('unknown connections')
+                elif message.group('type') == '254':
+                    print('number of channels')
+                elif message.group('type') == '255':
+                    print('# of clients and servers')
+                elif message.group('type') == '265':
+                    print('current local users')
+                elif message.group('type') == '266':
+                    print('current global users')
+                elif message.group('type') == '375':
+                    print('motd welcome')
+                elif message.group('type') == '372':
+                    print('motd')
+                elif message.group('type') == '376':
+                    print('end of motd')
+                elif message.group('type') == '353':
+                    print('names')
+                elif message.group('type') == '366':
+                    print('end of names')
+                elif message.group('type') == '404':
+                    print('cannot send to channel')
+                elif message.group('type') == '439':
+                    print('processing connection')
+                elif message.group('type') == '451':
+                    print('nick not registered')
+                elif message.group('type') == '473':
+                    print('cannot join channel')
+                elif message.group('type') == '479':
+                    print('illegal channel name')
+                elif message.group('type') == 'PRIVMSG':
+                    if message.group('message').find('\x01ACTION')  !=-1:
+                        user = message.group('user')
+                        channel = message.group('target')
+                        msg = message.group('message')
+                        for module in loaded_plugins:
+                            loaded_objects[module].action(user, channel, msg[9:-1])
+                    elif message.group('message').find('\x01VERSION') !=-1:
+                        user = message.group('user')
+                        client.notice(user, '\x01VERSION NekoLoliBot [Python3] -alpha-\x01\r\n')
+                    elif message.group('message').find('\x01DCC CHAT') !=-1:
+                        print('privmsg: '+message.group('message'))
+                    else:
+                        user = message.group('user')
+                        channel = message.group('target')
+                        msg = message.group('message')
+                        for module in loaded_plugins:
+                            loaded_objects[module].privmsg(user, channel, msg[1:])
+                elif message.group('type') == 'NOTICE':
+                    user = message.group('user')
+                    channel = message.group('target')
+                    msg = message.group('message')
+                    for module in loaded_plugins:
+                        loaded_objects[module].notice(user, msg[1:])
+                elif message.group('type') == 'JOIN':
+                    user = message.group('user')
+                    channel = message.group('info')[1:]
+                    if line.find(client.NICK) !=-1:
+                        for module in loaded_plugins:
+                            loaded_objects[module].joined(user, channel)
+                    else:
+                        for module in loaded_plugins:
+                            loaded_objects[module].userJoined(user, channel)
+                elif message.group('type') == 'PART':
+                    user = message.group('user')
+                    if message.group('info'):
+                        channel = message.group('info')[1:]
+                    elif message.group('target'):
+                        channel = message.group('target')
+                    if line.find(client.NICK) !=-1:
+                        for module in loaded_plugins:
+                            loaded_objects[module].left(user, channel)
+                    else:
+                        for module in loaded_plugins:
+                            loaded_objects[module].userLeft(user, channel)
+                elif message.group('type') == 'KICK':
+                    kicker = message.group('user')
+                    channel = message.group('target')
+                    msg = re.match('(?P<kickee>[^\s]+)\s:(?P<msg>.*)', message.group('message'), re.I)
+                    kickee = msg.group('kickee')
+                    if kickee == client.NICK:
+                        for module in loaded_plugins:
+                            loaded_objects[module].kicked(channel, kicker, msg.group('msg'))
+                    else:
+                        for module in loaded_plugins:
+                            loaded_objects[module].userKicked(kickee, channel, kicker, msg.group('msg'))
+                elif message.group('type') == 'NICK':
+                    print('nick')
+                elif message.group('type') == 'QUIT':
+                    print('quit')
+                elif message.group('type') == 'MODE':
+                    print('mode')
+                else:
+                    print(line.encode('utf-8'))
