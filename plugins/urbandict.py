@@ -3,13 +3,16 @@
 import template
 import re
 import html as h
-import urllib.request as u
+import urllib.request as ur
+import urllib.parse as up
 import json
 
 def ud_search(search_term):
     try:
-        data = u.urlopen('http://api.urbandictionary.com/v0/define?term='+h.escape(search_term), None,15)
-    except urllib.error.URLError:
+        print(h.escape(search_term))
+        data = ur.urlopen('http://api.urbandictionary.com/v0/define?term='+up.quote_plus(search_term), None,15)
+    except Exception as e:
+        print(e)
         return None
     html = h.unescape(data.read().decode('utf-8'))
     jsond = json.loads(html)['list']

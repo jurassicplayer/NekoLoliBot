@@ -3,7 +3,8 @@
 import template
 import re, random
 import html as h
-import urllib.request as u
+import urllib.request as ur
+import urllib.parse as up
 from colorize import Colorize as c
 
 def nyaa_search(search, category, filtering, sorting, ordering):
@@ -82,7 +83,7 @@ def nyaa_search(search, category, filtering, sorting, ordering):
     else:
         search_order = '1'
     try:
-        data = u.urlopen('http://www.nyaa.se/?page=search&cats='+search_cat+'&filter='+search_filter+'&sort='+search_sort+'&order='+search_order+'&term='+h.escape(search_term)+'&offset=1', None,15)
+        data = u.urlopen('http://www.nyaa.se/?page=search&cats='+search_cat+'&filter='+search_filter+'&sort='+search_sort+'&order='+search_order+'&term='+up.quote_plus(search_term)+'&offset=1', None,15)
     except urllib.error.URLError:
         return None
     html = h.unescape(data.read().decode('utf-8'))
