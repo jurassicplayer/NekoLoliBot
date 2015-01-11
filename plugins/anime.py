@@ -106,7 +106,7 @@ class IRCScript(template.IRCScript):
             self.sendMsg(channel, 'http://i.imgur.com/O5ibQ6p.gif')
         if re.match('^-kokoro$', msg, re.I):
             self.sendMsg(channel, 'http://i.imgur.com/gGg4hvE.jpg')
-        nyaa = re.match('^.nyaa\s(?P<message>.*)', msg, re.I)
+        nyaa = re.match('^!nyaa\s(?P<message>.*)', msg, re.I)
         if nyaa:
             message = nyaa.group('message')
             flags = {}
@@ -133,7 +133,7 @@ class IRCScript(template.IRCScript):
             result = nyaa_search(message, category, filtering, sorting, ordering)
             if result:
                 for x in range(0, len(result)):
-                    self.sendMsg(channel, c.color(result[x][2], 'white', 'black')+' | [S: '+c.color(result[x][5], 'lightgreen', None)+' L: '+c.color(result[x][6], 'red', None)+']['+result[x][4]+']')
+                    self.sendMsg(channel, c.style(c.color(result[x][2], 'white', 'black'), 'bold')+' | [S: '+c.color(result[x][5], 'lightgreen', None)+' L: '+c.color(result[x][6], 'red', None)+']['+result[x][4]+']')
                     self.sendMsg(channel, 'Info: '+result[x][1]+'       DL link: '+result[x][3])
             else:
                 self.sendMsg(channel, 'The search gave no results or timed out.')
@@ -141,6 +141,6 @@ class IRCScript(template.IRCScript):
             self.sendMsg(channel, 'http://anichart.net')
 
     def action(self, user, channel, msg):
-        regex = re.match("^slaps\s"+self.nick+"$", msg, re.I)
+        regex = re.match("^slaps\s"+self.NICK+"$", msg, re.I)
         if regex:
             self.sendMsg(channel, 'http://i.imgur.com/EVAWS04.gif')

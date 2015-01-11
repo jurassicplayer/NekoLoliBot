@@ -15,13 +15,13 @@ def ud_search(search_term):
     jsond = json.loads(html)['list']
     try:
         item = jsond.pop(0)
-        if len(item['definition']) < 400:
+        if len(item['definition']) < 150:
             definition = item['definition'].split("\r\n")
             result = ' '.join(definition)
         else:
             definition = item['definition'].split("\r\n")
             result = ' '.join(definition)
-            result = result[0:400]+'...'
+            result = result[0:150]+'...'
     except IndexError:
         result = None
     return result
@@ -34,7 +34,7 @@ def rm_html(html_data):
 class IRCScript(template.IRCScript):
     print('loaded urban dictionary')
     def privmsg(self, user, channel, msg): 
-        regex = re.match('^.ud\s(?P<search>.*)', msg, re.I)
+        regex = re.match('^!ud\s(?P<search>.*)', msg, re.I)
         if regex:
             result = ud_search(regex.group('search'));
             if result:
