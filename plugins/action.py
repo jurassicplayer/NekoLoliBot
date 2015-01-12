@@ -48,9 +48,9 @@ class IRCScript(template.IRCScript):
                     if regex.group('target') == 'me' or regex.group('target') == None:
                         target = 'self'
                         target_nick = user
-                    elif regex.group('target') == 'yourself' or regex.group('target') == self.nick:
+                    elif regex.group('target') == 'yourself' or regex.group('target') == self.NICK:
                         target = 'bot'
-                        target_nick = self.nick
+                        target_nick = self.NICK
                     else:
                         target = 'other'
                         target_nick = regex.group('target')
@@ -71,7 +71,7 @@ class IRCScript(template.IRCScript):
             try:
                 if regex.group('action') == action or regex.group('action') == action+'e':
                     ## Determine who is being targeted ##
-                    if regex.group('target') == self.nick:
+                    if regex.group('target') == self.NICK:
                         target = 'action'
                     ## Figure out what to reply with based on database ##
                     if action_database[action][target][1] == 'msg' and action_database[action][target][2] == 'sub':
