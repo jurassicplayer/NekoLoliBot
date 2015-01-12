@@ -49,7 +49,7 @@ class IRCScript(template.IRCScript):
             lastseen = last_seen(seen.group('user'));
             if lastseen and (seen.group('user') == user) or (seen.group('user') == 'me'):
                 self.sendMsg(channel, "If you keep asking me that, the last time you will be seen will be in the hospital.")
-            elif lastseen and (seen.group('user') == self.nick) or (seen.group('user') == 'yourself') or (seen.group('user') == 'you'):
+            elif (seen.group('user') == self.NICK) or (seen.group('user') == 'yourself') or (seen.group('user') == 'you'):
                 self.sendMsg(channel, "I'm going to slap you if you keep this up.")
             elif lastseen and seen.group('user') != user:
                 self.sendMsg(channel, seen.group('user')+' was last seen '+str(lastseen)+'ago.')

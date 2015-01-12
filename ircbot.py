@@ -68,11 +68,10 @@ if __name__ == '__main__':
             if line.find('PING') !=-1:
                 print('ping')
                 client.pong(line)
-            if line.find('!reload') !=-1:
+            if line.find('.reload') !=-1:
                 reload_all_plugins()
             message = re.match('^:((?P<user>[^\!]+)\!~(?P<ident>[^@]+)@(?P<userhost>[^\s]+)|(?P<domain>([^\s]+)))\s(?P<type>([^\s]+))\s((?P<target>([^\s]+))\s(?P<message>.*)|(?P<info>.*))', line, re.I)
             if message:
-                print(line.encode('utf-8'))
                 if message.group('type') == '001':
                     print('server welcome')
                 elif message.group('type') == '002':

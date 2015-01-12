@@ -135,8 +135,7 @@ class IRCScript(template.IRCScript):
             result = nyaa_search(message, category, filtering, sorting, ordering)
             if result:
                 for x in range(0, len(result)):
-                    self.sendMsg(channel, c.style(c.color(result[x][2], 'white', 'black'), 'bold')+' | [S: '+c.color(result[x][5], 'lightgreen', None)+' L: '+c.color(result[x][6], 'red', None)+']['+result[x][4]+']')
-                    self.sendMsg(channel, 'Info: '+result[x][1]+'       DL link: '+result[x][3])
+                    self.sendMsg(channel, c.style(c.color(result[x][2], 'white', 'black'), 'bold')+'  |  [S: '+c.color(result[x][5], 'lightgreen', None)+' L: '+c.color(result[x][6], 'red', None)+']['+result[x][4]+']  |  Info: '+result[x][1]+'  |  DL: '+result[x][3])
             else:
                 self.sendMsg(channel, 'The search gave no results or timed out.')
         if re.match('^-chart', msg, re.I):

@@ -45,8 +45,8 @@ class databaseManager():
 class IRCScript(template.IRCScript):
     print('loaded dbm')
     def privmsg(self, user, channel, msg):
-        regex = re.match('^\!dbm\s(?P<target>([^\s]+))', msg, re.I)
-        if re.match('^\!dbm$', msg, re.I):
+        regex = re.match('^\.dbm\s(?P<target>([^\s]+))', msg, re.I)
+        if re.match('^\.dbm$', msg, re.I):
             databaseManager.print_database();
         elif regex:
             userinfo = databaseManager.load_database(regex.group('target'))
