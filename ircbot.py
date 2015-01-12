@@ -123,9 +123,9 @@ if __name__ == '__main__':
                     if message.group('message').find('\x01ACTION')  !=-1:
                         user = message.group('user')
                         channel = message.group('target')
-                        msg = message.group('message')
+                        msg = message.group('message')[9:-1]
                         for module in loaded_plugins:
-                            loaded_objects[module].action(user, channel, msg[9:-1])
+                            loaded_objects[module].action(user, channel, msg)
                     elif message.group('message').find('\x01VERSION') !=-1:
                         user = message.group('user')
                         client.notice(user, '\x01VERSION NekoLoliBot [Python3] -alpha-\x01\r\n')
