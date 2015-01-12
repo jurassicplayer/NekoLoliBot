@@ -15,10 +15,11 @@ class IRCScript:
     def notice(self, user, msg): pass
     def joined(self, user, channel): pass
     def userJoined(self, user, channel): pass
-    def nick(self, user, newnick, channel): pass
+    def nick(self, user, newnick): pass
     def left(self, user, channel): pass
     def userLeft(self, user, channel): pass
     def userQuit(self, user, quitMessage): pass
     def kicked(self, channel, kicker, msg): pass
     def userKicked(self, kickee, channel, kicker, msg): pass
     def userMode(self, mod, user, channel, mode): pass
+    def channelMode(self, mod, channel, mode): pass
