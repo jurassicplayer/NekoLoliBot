@@ -17,7 +17,7 @@ class IRCClient():
         self.irc.connect((self.HOST, self.PORT))
         logging.info('<<Connecting to %s:%s' % (self.HOST, self.PORT))
     def action(self, target, message):
-        self.irc.send(bytes('PRIVMSG %s \x01ACTION %s\x01\r\n' % (target, message), 'utf-8'))
+        self.irc.send(bytes('PRIVMSG %s :\x01ACTION %s\x01\r\n' % (target, message), 'utf-8'))
         logging.info('<<ACTION %s :%s' % (target, message))
     def admin(self, server):
         self.irc.send(bytes('ADMIN %s\r\n' % server, 'utf-8'))
