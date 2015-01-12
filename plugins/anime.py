@@ -83,9 +83,10 @@ def nyaa_search(search, category, filtering, sorting, ordering):
     else:
         search_order = '1'
     try:
-        data = u.urlopen('http://www.nyaa.se/?page=search&cats='+search_cat+'&filter='+search_filter+'&sort='+search_sort+'&order='+search_order+'&term='+up.quote_plus(search_term)+'&offset=1', None,15)
-    except urllib.error.URLError:
-        return None
+        data = ur.urlopen('http://www.nyaa.se/?page=search&cats='+search_cat+'&filter='+search_filter+'&sort='+search_sort+'&order='+search_order+'&term='+up.quote_plus(search_term)+'&offset=1', None,15)
+    except Exception as e:
+        print(e)
+        return
     html = h.unescape(data.read().decode('utf-8'))
     pattern = re.compile('.*?class="((?P<filter>[^\s]+)\s|)tlistrow.*?tlistname"><a href="(?P<infolink>[^"]+)">(?P<title>(?:(?!<\/a>).)*).*?tlistdownload"><a href="(?P<dl_link>[^"]+)".*?tlistsize">(?P<size>(?:(?!<\/td>).)*).*?tlistsn">(?P<seed>(?:(?!<\/td>).)*).*?tlistln">(?P<leech>(?:(?!<\/td>).)*).*?tlistdn">(?P<down>(?:(?!<\/td>).)*).*?tlistmn">(?P<comment>(?:(?!<\/td>).)*).*?', re.I)
     match_index = 0
