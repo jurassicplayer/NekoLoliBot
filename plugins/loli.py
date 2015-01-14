@@ -15,6 +15,11 @@ class loliManager():
         crit =       random.randrange(1, 4)
         counter =    random.randrange(10, 21)
         arch =       random.choice(['Yandere']*4+['Deredere']*24+['Tsundere']*24+['Kuudere']*24+['Dandere']*24)
+        bust =       random.randrange(10, 21)  #Fix
+        waist =      random.randrange(10, 21)  #Fix
+        hip =        random.randrange(10, 21)  #Fix
+        height =     random.randrange(10, 21)  #Fix use BMI
+        weight =     random.randrange(10, 21)  #Fix use BMI
         loligenerator = {
             'name':         lolinick,
             'level':               1,
@@ -31,7 +36,12 @@ class loliManager():
             'crit':             crit,
             'counter':       counter,
             'felled':              0,
-            'fainted':             0
+            'fainted':             0,
+            'bust':             bust,
+            'waist':           waist,
+            'hip':               hip,
+            'height':         height,
+            'weight':         weight
             }
         userdb = dbm('user');
         userdb.load_database();
