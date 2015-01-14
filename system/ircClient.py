@@ -67,7 +67,7 @@ class IRCClient():
         self.irc.send(bytes('NICK %s\r\n' % NICK, 'utf-8'))
         logging.info('<<Requesting nick %s' % NICK)
     def notice(self, target, message):
-        self.irc.send(bytes('NOTICE %s %s\r\n' % (target, message), 'utf-8'))
+        self.irc.send(bytes('NOTICE %s :%s\r\n' % (target, message), 'utf-8'))
         logging.info('<<NOTICE %s :%s' % (target, message))
     def part(self, channels):
         self.irc.send(bytes('PART %s\r\n' % channels, 'utf-8'))
