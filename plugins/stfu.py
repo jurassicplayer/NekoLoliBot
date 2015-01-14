@@ -15,7 +15,7 @@ def sleep(self, length, channel):
 class IRCScript(template.IRCScript):
     print('loaded stfu')
     def privmsg(self, user, channel, msg):
-        stfu = re.match('^!stfu(\s(?P<time>\d+)((?P<unit>[s|m|h])|)|)$', msg, re.I)
+        stfu = re.match('^!(stfu|urusai)(\s(?P<time>\d+)((?P<unit>[s|m|h])|)|)$', msg, re.I)
         if stfu:
             if stfu.group('time') and stfu.group('unit'):
                 delay = int(stfu.group('time'))
