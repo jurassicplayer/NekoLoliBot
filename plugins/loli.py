@@ -14,7 +14,9 @@ class loliManager():
         defense =    random.randrange(20, 31)
         crit =       random.randrange(1, 4)
         counter =    random.randrange(10, 21)
-        arch =       random.choice(['Yandere']*4+['Deredere']*24+['Tsundere']*24+['Kuudere']*24+['Dandere']*24)
+        dere =       random.choice(['Yandere']*4+['Deredere']*24+['Tsundere']*24+['Kuudere']*24+['Dandere']*24)
+        accent =     ['Zettai Ryouiki', 'Ahoge', 'Nekomimi', 'Magic wand', 'Megane']
+        archetype =  ['Catgirl', 'Bunnygirl', 'Maid','Android', 'Lamia', 'Yankee', 'Mermaid', 'Mahou Shoujo', 'Witch', 'Zombie', 'Ghost', 'Cyborg', 'Angel', 'Vampire', 'Succubus', 'Denpa', 'Genius', 'Knight', 'Miko', 'Ninja', 'Nun', 'Nurse', 'Ojou-sama', 'Otaku', 'Otokonoko']
         age =        random.randrange(8, 14)
         ## A fag named dreamcore contributed to helping come up with these algorithms ##
         height =     122 + (age-8)*6 + random.randrange(0,6)
@@ -30,7 +32,9 @@ class loliManager():
             'M':           masochism,
             'breakpoint': breakpoint,
             'affection':           0,
-            'archetype':        arch,
+            'deretype':         dere,
+            'accent':         accent,
+            'archetype':   archetype,
             'maxhp':       hitpoints,
             'currenthp':   hitpoints,
             'atk':            attack,
