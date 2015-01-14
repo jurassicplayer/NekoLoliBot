@@ -18,27 +18,39 @@ itemdb = {
     'tea':        {'price': 50,   'upp': 1,  'sale': 100}
     }
 
+def mine(user):
+    userdb.load_database();
+    userData, current_tokens = userdb.load_parameter(user, 'tokens', int("0"))
+    weighted_random = ['low'] * 70 + ['med'] * 20 + ['high'] * 10
+    weight = random.choice(weighted_random)
+    if weight == 'low':
+        profit = random.randint(2,15)
+    elif weight == 'med':
+        profit = random.randint(16,35)
+    elif weight == 'high':
+        profit = random.randint(40,55)
+    userData['tokens'] += profit
+    userdb.save_database(user, userData);
+    return profit
+
+def token_circulation():
+    data = userdb.load_database();
+    token_total = 0
+    for user in data:
+        userData, current_tokens = userdb.load_parameter(user, 'tokens', int("0"))
+        token_total += current_tokens
+    return token_total
+
 class IRCScript(template.IRCScript):
     print('loaded tokens')
     def privmsg(self, user, channel, msg):
         if re.match('^-mine', msg, re.I):
-            userdb.load_database();
-            userData, current_tokens = userdb.load_parameter(user, 'tokens', int("0"))
-            weighted_random = ['low'] * 70 + ['med'] * 20 + ['high'] * 10
-            weight = random.choice(weighted_random)
-            if weight == 'low':
-                profit = random.randint(2,15)
-            elif weight == 'med':
-                profit = random.randint(16,35)
-            elif weight == 'high':
-                profit = random.randint(40,55)
-            userData['tokens'] += profit
-            userdb.save_database(user, userData);
+            profit = mine(user)
             self.sendMsg(channel, user + ' mined ' + str(profit) + ' tokens.')
             
         looting = re.match('^-loot\s(?P<target>[^\s]+)$', msg, re.I)
         if looting:
-            if looting.group('target') == 'me':
+            if looting.group('target') == 'me' or looting.group('target') == user:
                 self.sendNotice(user, "You can't loot yourself!")
             elif looting.group('target') == self.NICK:
                 self.sendNotice(user, "Surely you aren't planning on looting from your own loli.")
@@ -90,6 +102,35 @@ class IRCScript(template.IRCScript):
                     userdb.save_database(target, targetData)
                 else:
                     self.sendNotice(user, target+" doesn't have any tokens.")
+          
+        ## Give ##
+        giving = re.match('^-give\s(?P<target>[^\s]+)\s(?P<amount>\d+)$', msg, re.I)
+        if giving:
+            if giving.group('target') == 'me' or giving.group('target') == user:
+                self.sendNotice(user, "You can't give yourself tokens!")
+            elif giving.group('target') == self.NICK:
+                self.sendNotice(user, "I'll really take it you know.")
+            else:
+                target = giving.group('target')
+                amount = int(giving.group('amount'))
+                userdb.load_database();
+                userData, current_tokens = userdb.load_parameter(user, 'tokens', int("0"))
+                targetData, target_tokens = userdb.load_parameter(target, 'tokens', int("0"))
+                if 'last_seen' in targetData:
+                    if current_tokens >= amount and amount != 0:
+                        current_tokens -= amount
+                        target_tokens += amount
+                        userData['tokens'] = current_tokens
+                        targetData['tokens'] = target_tokens
+                        userdb.save_database(user, userData)
+                        userdb.save_database(target, targetData)
+                    elif current_tokens < amount and amount != 0:
+                        self.sendNotice(user, "You don't have enough tokens!")
+                    else:
+                        self.sendNotice(user, "I'll give you nothing.")
+                else:
+                    self.sendNotice(user, "I've never seen them before.")
+        ## Balance ##
         balanced = re.match('^-balance(\s(?P<target>[^\s]+)|)', msg, re.I)
         if balanced:
             if balanced.group('target') == 'me' or balanced.group('target') == None:
@@ -99,6 +140,13 @@ class IRCScript(template.IRCScript):
             userdb.load_database();
             userData, current_tokens = userdb.load_parameter(target, 'tokens', int("0"))
             self.sendMsg(channel, target + ' has ' + str(current_tokens) + ' tokens.')
+            
+        ## Token Circulation ##
+        if re.match('^-tokens', msg, re.I):
+            tokens = token_circulation();
+            self.sendNotice(user, 'The Financial District has a total of '+str(tokens)+' tokens currently in circulation.')
+        
+        ## Store ##
         if re.match('^-store', msg, re.I):
             self.sendNotice(user, 'Welcome to the Flowercrest Department Store~!')
             for product in itemdb:
