@@ -2,11 +2,10 @@
 
 import template
 import re, pickle, random, logging
-from dbmanager import databaseManager as dbm
+from database import databaseManager as dbm
 
 class loliManager():
     def initialize_loli(user, lolinick):
-        userdb = dbm.load_database(user);
         sadism =     random.randrange(0, 11)
         masochism =  10-sadism
         breakpoint = random.randrange(80, 100)
@@ -34,21 +33,25 @@ class loliManager():
             'felled':              0,
             'fainted':             0
             }
-        userdb, lolistats = dbm.load_parameter(userdb, 'loli', loligenerator);
+        userdb = dbm('user');
+        userdb.load_database();
+        userData, lolistats = userdb.load_parameter(user, 'loli', loligenerator);
         if lolistats != loligenerator:
             state = 'failure'
-            lolistats = userdb['loli']
+            lolistats = userData['loli']
             logging.info('**lm** <%s> Tried to generate a loli, but failed.' % user)
         else:
-            dbm.save_database(user, userdb);
+            userdb.save_database(user, userData);
             state = 'success'
             logging.info('**lm** <%s> Generated a loli' % user)
         return state, lolistats
     def release_loli(user):
-        userdb = dbm.load_database(user);
+        userdb = dbm('user');
+        userdb.load_database();
+        userData, lolistats = userdb.load_parameter(user, 'loli', None);
         try: 
-            del userdb['loli']
-            dbm.save_database(user, userdb);
+            del userData['loli']
+            userdb.save_database(user, userData);
             state = 'success'
             logging.info('**lm** <%s> Released a loli.' % user)
         except KeyError:
@@ -56,8 +59,9 @@ class loliManager():
             logging.info('**lm** <%s> Tried to release a loli, but failed.' % user)
         return state
     def loli_stats(user):
-        userdb = dbm.load_database(user);
-        userdb, lolistats = dbm.load_parameter(userdb, 'loli', None)
+        userdb = dbm('user');
+        userdb.load_database();
+        userData, lolistats = userdb.load_parameter(user, 'loli', None);
         return lolistats
 
 class IRCScript(template.IRCScript):

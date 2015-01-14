@@ -2,18 +2,20 @@
 
 import template
 import re, time
-from dbmanager import databaseManager as dbm
+from database import databaseManager as dbm
 
+
+userdb = dbm('user');
 def update_seen(user):
-    userdb = dbm.load_database(user);
-    userdb, lastseen = dbm.load_parameter(userdb, 'last_seen', None);
+    userdb.load_database();
+    userData, lastseen = userdb.load_parameter(user, 'last_seen', None);
     current_time = (int(time.strftime('%j'))*24*60*60)+(int(time.strftime('%H'))*60*60)+(int(time.strftime('%M'))*60)+int(time.strftime('%S'))
-    userdb['last_seen'] = current_time
-    dbm.save_database(user, userdb);
+    userData['last_seen'] = current_time
+    userdb.save_database(user, userData);
 
 def last_seen(user):
-    userdb = dbm.load_database(user);
-    userdb, lastseen = dbm.load_parameter(userdb, 'last_seen', None);
+    userdb.load_database();
+    userData, lastseen = userdb.load_parameter(user, 'last_seen', None);
     current_time = (int(time.strftime('%j'))*24*60*60)+(int(time.strftime('%H'))*60*60)+(int(time.strftime('%M'))*60)+int(time.strftime('%S'))
     if lastseen:
         diff_in_sec = current_time - lastseen

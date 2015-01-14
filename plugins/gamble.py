@@ -2,10 +2,10 @@
 
 import template
 import re, pickle, random, logging
-from dbmanager import databaseManager as dbm
+from database import databaseManager as dbm
 
 
-
+userdb = dbm('user');
 def colorize(hand):
     new_hand = []
     for card in hand:
@@ -37,8 +37,8 @@ def add_hand(hand):
         return total
     
 def diceroll(user, bet, call):
-    userdb = dbm.load_database(user);
-    userdb, current_tokens = dbm.load_parameter(userdb, 'tokens', 0);
+    userdb.load_database();
+    userData, current_tokens = userdb.load_parameter(user, 'tokens', 0);
     if current_tokens >= bet:
         current_tokens -= bet
         dice = [random.randrange(1,7), random.randrange(1,7)]
@@ -51,15 +51,15 @@ def diceroll(user, bet, call):
             end = 'win'
         else:
             end = 'loss'
-        userdb['tokens'] = current_tokens
-        dbm.save_database(user, userdb);
+        userData['tokens'] = current_tokens
+        userdb.save_database(user, userData);
         state = [dice, end]
     else:
         state = None
     return state
 def cointoss(user, bet, call):
-    userdb = dbm.load_database(user);
-    userdb, current_tokens = dbm.load_parameter(userdb, 'tokens', 0);
+    userdb.load_database();
+    userData, current_tokens = userdb.load_parameter(user, 'tokens', 0);
     if current_tokens >= bet:
         current_tokens -= bet
         coin = random.randrange(1,3)
@@ -76,8 +76,8 @@ def cointoss(user, bet, call):
             end = 'win'
         else:
             end = 'loss'
-        userdb['tokens'] = current_tokens
-        dbm.save_database(user, userdb);
+        userData['tokens'] = current_tokens
+        userdb.save_database(user, userData);
         state = [coin, end]
     else:
         state = None
@@ -106,27 +106,27 @@ class card_dealer():
             'deck': deck,
             'bet': bet
             }
-        userdb = dbm.load_database(user);
-        userdb, current_game = dbm.load_parameter(userdb, 'blackjack', None);
-        userdb, current_tokens = dbm.load_parameter(userdb, 'tokens', 0);
+        userdb.load_database();
+        userData, current_game = userdb.load_parameter(user, 'blackjack', None);
+        userData, current_tokens = userdb.load_parameter(user, 'tokens', 0);
         if current_game:
             game = 'ingame'
         elif current_tokens >= bet:
-            userdb['tokens'] = current_tokens - bet
-            userdb['blackjack'] = game
-            dbm.save_database(user, userdb);
+            userData['tokens'] = current_tokens - bet
+            userData['blackjack'] = game
+            userdb.save_database(user, userData);
             game['player'], game['dealer'] = colorize(player_hand), colorize(dealer_hand)
         else:
             game = None
         return game
         
     def blackjack_hit(user):
-        userdb = dbm.load_database(user);
-        userdb, current_game = dbm.load_parameter(userdb, 'blackjack', None);
+        userdb.load_database();
+        userData, current_game = userdb.load_parameter(user, 'blackjack', None);
         if current_game:
             current_game['player'].append(current_game['deck'].pop())
-            userdb['blackjack'] = current_game
-            dbm.save_database(user, userdb);
+            userData['blackjack'] = current_game
+            userdb.save_database(user, userData);
             player_hand = current_game['player']
             dealer_hand = current_game['dealer']
             total = add_hand(player_hand)
@@ -136,8 +136,8 @@ class card_dealer():
         return hands
         
     def blackjack_stand(user):
-        userdb = dbm.load_database(user);
-        userdb, current_game = dbm.load_parameter(userdb, 'blackjack', None);
+        userdb.load_database();
+        userData, current_game = userdb.load_parameter(user, 'blackjack', None);
         if current_game:
             player_hand = current_game['player']
             dealer_hand = current_game['dealer']
@@ -149,7 +149,7 @@ class card_dealer():
                 while dealer_total < 17:
                     dealer_hand.append(current_game['deck'].pop())
                     dealer_total = add_hand(dealer_hand)
-            userdb, current_tokens = dbm.load_parameter(userdb, 'tokens', 0)
+            userData, current_tokens = userdb.load_parameter(user, 'tokens', 0)
             if dealer_total > 21:
                 current_tokens += current_game['bet']*2
                 result = ['win', colorize(player_hand), colorize(dealer_hand)]
@@ -161,24 +161,24 @@ class card_dealer():
             elif player_total == dealer_total:
                 current_tokens += current_game['bet']
                 result = ['tie', colorize(player_hand), colorize(dealer_hand)]
-            del userdb['blackjack']
-            userdb['tokens'] = int(current_tokens)
-            dbm.save_database(user, userdb);
+            del userData['blackjack']
+            userData['tokens'] = int(current_tokens)
+            userdb.save_database(user, userData);
         else:
             result = None
         return result
         
     def blackjack_double(user):
-        userdb = dbm.load_database(user);
-        userdb, current_game = dbm.load_parameter(userdb, 'blackjack', None);
-        userdb, current_tokens = dbm.load_parameter(userdb, 'tokens', 0)
+        userdb.load_database();
+        userData, current_game = userdb.load_parameter(user, 'blackjack', None);
+        userData, current_tokens = userdb.load_parameter(user, 'tokens', 0)
         if current_game and current_tokens >= current_game['bet']:
             current_game['player'].append(current_game['deck'].pop())
             current_tokens -= current_game['bet']
             current_game['bet'] *= 2
-            userdb['blackjack'] = current_game
-            userdb['tokens'] = current_tokens
-            dbm.save_database(user, userdb);
+            userData['blackjack'] = current_game
+            userData['tokens'] = current_tokens
+            userdb.save_database(user, userData);
             player_hand = current_game['player']
             dealer_hand = current_game['dealer']
             total = add_hand(player_hand)
@@ -190,24 +190,24 @@ class card_dealer():
         return hands
                 
     def blackjack_surrender(user):
-        userdb = dbm.load_database(user);
-        userdb, current_game = dbm.load_parameter(userdb, 'blackjack', None);
-        userdb, current_tokens = dbm.load_parameter(userdb, 'tokens', 0);
+        userdb.load_database();
+        userData, current_game = userdb.load_parameter(user, 'blackjack', None);
+        userData, current_tokens = userdb.load_parameter(user, 'tokens', 0)
         if current_game:
             current_tokens += int(current_game['bet']/2)
             player_hand = current_game['player']
             dealer_hand = current_game['dealer']
-            userdb['tokens'] = current_tokens
-            del userdb['blackjack']
-            dbm.save_database(user, userdb);
+            userData['tokens'] = current_tokens
+            del userData['blackjack']
+            userdb.save_database(user, userData);
             losses = [int(current_game['bet']/2), colorize(player_hand), colorize(dealer_hand)]
         else:
             losses = None
         return losses
     
     def show_hand(user):
-        userdb = dbm.load_database(user);
-        userdb, current_game = dbm.load_parameter(userdb, 'blackjack', None);
+        userdb.load_database();
+        userData, current_game = userdb.load_parameter(user, 'blackjack', None);
         print(current_game)
         if current_game:
             player_hand = current_game['player']
@@ -219,13 +219,13 @@ class card_dealer():
         return state
     
     def bust(user):
-        userdb = dbm.load_database(user);
-        userdb, current_game = dbm.load_parameter(userdb, 'blackjack', None);
+        userdb.load_database();
+        userData, current_game = userdb.load_parameter(user, 'blackjack', None);
         total = add_hand(current_game['player'])
         if total > 21:
             state = current_game['player']
-            del userdb['blackjack']
-            dbm.save_database(user, userdb);
+            del userData['blackjack']
+            userdb.save_database(user, userData);
         else:
             state = None
         return state

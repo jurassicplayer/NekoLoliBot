@@ -2,41 +2,43 @@
 
 import template
 import re, pickle, time, logging
-from dbmanager import databaseManager as dbm
+from database import databaseManager as dbm
 
+userdb = dbm('user');
 class noteManager():
     def new_note(user, target, msg):
-        userdb = dbm.load_database(target);
-        userdb, notes = dbm.load_parameter(userdb, 'note', {user: []});
+        userdb.load_database();
+        userData, notes = userdb.load_parameter(target, 'note', None);
         try:
             notes[user].append(msg)
         except KeyError:
             notes.update({user: [msg]})
-        userdb['note'].update(notes)
-        dbm.save_database(target, userdb);
+        userData['note'].update(notes)
+        userdb.save_database(target, userData);
         logging.info('<<NM>> '+user+' made a new note for '+target)
     def del_note(user, target, cycles):
         cycles = int(cycles)
-        userdb = dbm.load_database(target);
-        userdb, notes = dbm.load_parameter(userdb, 'note', {user: []});
-        if len(userdb['note'][user]) >= cycles:
+        userdb.load_database();
+        userData, notes = userdb.load_parameter(target, 'note', None);
+        if len(userData['note'][user]) >= cycles:
             for x in range(0, cycles):
-                userdb['note'][user].pop()
+                userData['note'][user].pop()
             state = 'success'
-            dbm.save_database(target, userdb);
+            userdb.save_database(target, userData);
             logging.info('<<NM>> '+user+' deleted a note for '+target)
         else:
             state = 'failure'
         return state
     def show_note(user):
-        userdb = dbm.load_database(user);
-        userdb, notes = dbm.load_parameter(userdb, 'note', {user: []});
-        for note_leaver in notes:
-            all_notes = []
-            for available_note in notes[note_leaver]:
-                all_notes.append('['+note_leaver+'] '+available_note)
-        userdb['note'] = {user: []}
-        dbm.save_database(user, userdb);
+        userdb.load_database();
+        userData, notes = userdb.load_parameter(user, 'note', None);
+        all_notes = []
+        if notes:
+            for note_leaver in notes:
+                for available_note in notes[note_leaver]:
+                    all_notes.append('['+note_leaver+'] '+available_note)
+        userData['note'] = {}
+        userdb.save_database(user, userData);
         return all_notes
         
 class IRCScript(template.IRCScript):
@@ -67,7 +69,7 @@ class IRCScript(template.IRCScript):
                 pass
             else:
                 all_notes = noteManager.show_note(user);
-                for notes in all_notes:
-                    self.sendNotice(user, notes)
+                for note in all_notes:
+                    self.sendNotice(user, note)
         except AttributeError:
             pass
