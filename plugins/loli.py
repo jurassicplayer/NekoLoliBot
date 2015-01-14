@@ -15,11 +15,13 @@ class loliManager():
         crit =       random.randrange(1, 4)
         counter =    random.randrange(10, 21)
         arch =       random.choice(['Yandere']*4+['Deredere']*24+['Tsundere']*24+['Kuudere']*24+['Dandere']*24)
-        bust =       random.randrange(10, 21)  #Fix
-        waist =      random.randrange(10, 21)  #Fix
-        hip =        random.randrange(10, 21)  #Fix
-        height =     random.randrange(10, 21)  #Fix use BMI
-        weight =     random.randrange(10, 21)  #Fix use BMI
+        age =        random.randrange(8, 14)
+        ## A fag named dreamcore contributed to helping come up with these algorithms ##
+        height =     122 + (age-8)*6 + random.randrange(0,6)
+        weight =     int(((height/100)(height/100)) * random.randrange(14-20))
+        bust =       random.randrange(68, 86)  #Fix
+        waist =      random.randrange(56, 77)  #Fix
+        hip =        random.randrange(68, 89)  #Fix
         loligenerator = {
             'name':         lolinick,
             'level':               1,
