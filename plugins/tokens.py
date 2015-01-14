@@ -2,9 +2,10 @@
 
 import template
 import re, pickle, random
-from dbmanager import databaseManager as dbm
+from database import databaseManager as dbm
 from loli import loliManager as lm
 
+userdb = dbm('user');
 # price, unit-per-price, sale price, 
 itemdb = {
     'loli':       {'price': 1000, 'upp': 1,  'sale': 100},
@@ -21,8 +22,8 @@ class IRCScript(template.IRCScript):
     print('loaded tokens')
     def privmsg(self, user, channel, msg):
         if re.match('^-mine', msg, re.I):
-            userdb = dbm.load_database(user);
-            userdb, current_tokens = dbm.load_parameter(userdb, 'tokens', 0)
+            userdb.load_database();
+            userData, current_tokens = userdb.load_parameter(user, 'tokens', int("0"))
             weighted_random = ['low'] * 70 + ['med'] * 20 + ['high'] * 10
             weight = random.choice(weighted_random)
             if weight == 'low':
@@ -31,17 +32,72 @@ class IRCScript(template.IRCScript):
                 profit = random.randint(16,35)
             elif weight == 'high':
                 profit = random.randint(40,55)
-            userdb['tokens'] += profit
-            dbm.save_database(user, userdb);
+            userData['tokens'] += profit
+            userdb.save_database(user, userData);
             self.sendMsg(channel, user + ' mined ' + str(profit) + ' tokens.')
+            
+        looting = re.match('^-loot\s(?P<target>[^\s]+)$', msg, re.I)
+        if looting:
+            if looting.group('target') == 'me':
+                self.sendNotice(user, "You can't loot yourself!")
+            elif looting.group('target') == self.NICK:
+                self.sendNotice(user, "Surely you aren't planning on looting from your own loli.")
+            else:
+                target = looting.group('target')
+                userdb.load_database();
+                userData, current_tokens = userdb.load_parameter(user, 'tokens', int("0"))
+                targetData, target_tokens = userdb.load_parameter(target, 'tokens', int("0"))
+                if target_tokens > 0:
+                    weighted_random = ['bs'] * 5 + ['nil'] * 50 + ['low'] * 30 + ['med'] * 10 + ['high'] * 5
+                    weight = random.choice(weighted_random)
+                    ## Determine profit ##
+                    if weight == 'bs':
+                        profit = -(random.randint(600,1000))
+                    elif weight == 'nil':
+                        profit = int('0')
+                    elif weight == 'low':
+                        profit = random.randint(50,150)
+                    elif weight == 'med':
+                        profit = random.randint(200,300)
+                    elif weight == 'high':
+                        profit = random.randint(300,500)
+                    ## Check if both users have enough ##
+                    if profit > 0:
+                        if target_tokens >= profit:
+                            target_tokens -= profit
+                            current_tokens += profit
+                            self.sendNotice(user, "You were able to nab "+str(profit)+" tokens!")
+                        elif target_tokens < profit:
+                            self.sendNotice(user, "You were able to nab "+str(target_tokens)+" tokens!")
+                            current_tokens += target_tokens
+                            target_tokens = int('0')
+                    elif profit < 0:
+                        print('HAHA BITCH, you got rekt')
+                        profit = -profit
+                        if current_tokens >= profit:
+                            current_tokens -= profit
+                            target_tokens += profit
+                            self.sendNotice(user, "The little wench noticed you! Lost "+str(profit)+" tokens!")
+                        elif current_tokens < profit:
+                            self.sendNotice(user, "The little wench noticed you! Lost "+str(current_tokens)+" tokens!")
+                            target_tokens += current_tokens
+                            current_tokens = int('0')
+                    else:
+                        self.sendNotice(user, "Try as you might, you were too distracted by a wandering loli to loot.")
+                    userData['tokens'] = current_tokens
+                    targetData['tokens'] = target_tokens
+                    userdb.save_database(user, userData)
+                    userdb.save_database(target, targetData)
+                else:
+                    self.sendNotice(user, target+" doesn't have any tokens.")
         balanced = re.match('^-balance(\s(?P<target>[^\s]+)|)', msg, re.I)
         if balanced:
             if balanced.group('target') == 'me' or balanced.group('target') == None:
                 target = user
             else:
                 target = balanced.group('target')
-            userdb = dbm.load_database(target);
-            userdb, current_tokens = dbm.load_parameter(userdb, 'tokens', 0)
+            userdb.load_database();
+            userData, current_tokens = userdb.load_parameter(target, 'tokens', int("0"))
             self.sendMsg(channel, target + ' has ' + str(current_tokens) + ' tokens.')
         if re.match('^-store', msg, re.I):
             self.sendNotice(user, 'Welcome to the Flowercrest Department Store~!')
