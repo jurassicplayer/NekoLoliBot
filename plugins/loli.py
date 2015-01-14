@@ -39,11 +39,12 @@ class loliManager():
             'counter':       counter,
             'felled':              0,
             'fainted':             0,
+            'age':               age,
+            'height':         height,
+            'weight':         weight,
             'bust':             bust,
             'waist':           waist,
-            'hip':               hip,
-            'height':         height,
-            'weight':         weight
+            'hip':               hip
             }
         userdb = dbm('user');
         userdb.load_database();
