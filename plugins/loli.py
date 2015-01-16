@@ -15,12 +15,122 @@ class loliManager():
         crit =       random.randrange(1, 4)
         counter =    random.randrange(10, 21)
         dere =       random.choice(['Yandere']*4+['Deredere']*24+['Tsundere']*24+['Kuudere']*24+['Dandere']*24)
-        accent =     ['Zettai Ryouiki', 'Ahoge', 'Nekomimi', 'Magic wand', 'Megane']
-        archetype =  ['Catgirl', 'Bunnygirl', 'Maid','Android', 'Lamia', 'Yankee', 'Mermaid', 'Mahou Shoujo', 'Witch', 'Zombie', 'Ghost', 'Cyborg', 'Angel', 'Vampire', 'Succubus', 'Denpa', 'Genius', 'Knight', 'Miko', 'Ninja', 'Nun', 'Nurse', 'Ojou-sama', 'Otaku', 'Otokonoko']
+        accent =     random.choice([
+            'Red tongue',
+            "Philosopher's Stone",
+            'Wrist Telecommunicator',
+            'Flower Blossom',
+            'Bionic Eye',
+            'Halo',
+            'Armguard',
+            '',
+            'Hammer',
+            'Bunny Suit',
+            "Cat's Bell",
+            'Cowbell',
+            'Exoskeleton',
+            'Ahoge',
+            '',
+            'Staff',
+            '',
+            'Bent Spoon',
+            'Petite Wings',
+            'Megane',
+            'Will-o-wisps',
+            '',
+            'Microphone',
+            'Sickle',
+            'Shield',
+            'Wakizashi',
+            '',
+            'Magic Wand',
+            'Headdress',
+            'Roots',
+            'Seashells',
+            'Gohei',
+            'Bandages',
+            'Necronomicon',
+            '',
+            'Habit',
+            'Syringe',
+            'Zettai Ryouiki',
+            'Club',
+            'Talisman',
+            'Otaku-ware',
+            'Cap',
+            'Pirate Hat',
+            'Tarot Cards',
+            'Lingerie',
+            'Golem',
+            'Shakujo',
+            'Dagger',
+            'Goblet',
+            'Familiar',
+            'Kansai-ben',
+            'Snowflake',
+            'Bloodied Clothes',
+            'Nekomimi',
+            'Twintails'
+            ])
+        archetype =  random.choice([
+            'Akaname',
+            'Alchemist',
+            'Alien',
+            'Alraune',
+            'Android', 
+            'Angel', 
+            'Archer',
+            'Assassin',
+            'Blacksmith',
+            'Bunnygirl',
+            'Catgirl', 
+            'Cowgirl'
+            'Cyborg', 
+            'Denpa', 
+            'Dragon',
+            'Druid',
+            'Dryad',
+            'ESPer',
+            'Fairy',
+            'Genius',
+            'Ghost', 
+            'Harpy',
+            'Idol',
+            'Kamaitachi',
+            'Knight',
+            'Kunoichi', 
+            'Lamia', 
+            'Mahou Shoujo', 
+            'Maid',
+            'Mandragora',
+            'Mermaid', 
+            'Miko',
+            'Mummy',
+            'Necromancer',
+            'Nekomata',
+            'Nun', 
+            'Nurse', 
+            'Ojou-sama',
+            'Oni',
+            'Onmyouji', 
+            'Otaku', 
+            'Otokonoko',
+            'Pirate',
+            'Seer',
+            'Succubus',
+            'Summoner',
+            'Tengu',
+            'Thief',
+            'Vampire', 
+            'Witch', 
+            'Yankee',
+            'Yuki-onna',
+            'Zombie'
+            ])
         age =        random.randrange(8, 14)
         ## A fag named dreamcore contributed to helping come up with these algorithms ##
-        height =     122 + (age-8)*6 + random.randrange(0,6)
-        weight =     int(((height/100)(height/100)) * random.randrange(14-20))
+        height =     int(122 + (age-8)*6 + random.randrange(0,6))  #cm
+        weight =     int((height/100) * (height/100) * random.randrange(14, 20))  #kg
         bust =       random.randrange(68, 86)  #Fix
         waist =      random.randrange(56, 77)  #Fix
         hip =        random.randrange(68, 89)  #Fix
@@ -98,7 +208,7 @@ class IRCScript(template.IRCScript):
                 target = statsmsg.group('user')
             stats = loliManager.loli_stats(target);
             if stats:
-                self.sendNotice(user, '['+stats['archetype']+'] '+stats['name']+'    Lv'+str(stats['level']))
+                self.sendNotice(user, '['+stats['deretype']+'] '+stats['name']+'    Lv'+str(stats['level']))
                 self.sendNotice(user, 'S: '+str(stats['S'])+'          M: '+str(stats['S']))
                 self.sendNotice(user, 'Hp: '+str(stats['currenthp'])+'/'+str(stats['maxhp']))
                 self.sendNotice(user, 'Atk: '+str(stats['atk'])+'       Def: '+str(stats['def']))
