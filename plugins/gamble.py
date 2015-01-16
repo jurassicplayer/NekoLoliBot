@@ -3,7 +3,7 @@
 import template
 import re, pickle, random, logging
 from database import databaseManager as dbm
-
+from colorize import Colorize as c
 
 userdb = dbm('user');
 def colorize(hand):
@@ -251,18 +251,18 @@ class IRCScript(template.IRCScript):
             if hit:
                 self.sendNotice(user, '['+' '.join(hit[0])+']')
                 if card_dealer.bust(user):
-                    self.sendMsg(channel, 'D['+' '.join(hit[1])+'] U['+' '.join(hit[0])+'] '+user+' went bust!')
+                    self.sendMsg(channel, user+': '+c.style('You busted', 'bold')+' | D['+' '.join(hit[1])+'] U['+' '.join(hit[0])+']')
             else:
                 self.sendNotice(user, "You currently aren't in a game.")
         ## Standing ## 
         if re.match('^-sta(nd|y)$', msg, re.I):
             stand = card_dealer.blackjack_stand(user);
             if stand[0] == 'win':
-                self.sendMsg(channel, 'D['+' '.join(stand[2])+'] U['+' '.join(stand[1])+'] '+user+' won!')
+                self.sendMsg(channel, user+': '+c.style('You win', 'bold')+' | D['+' '.join(stand[2])+'] U['+' '.join(stand[1])+']')
             elif stand[0] == 'loss':
-                self.sendMsg(channel, 'D['+' '.join(stand[2])+'] U['+' '.join(stand[1])+'] '+user+' lost.')
+                self.sendMsg(channel, user+': '+c.style('You lose', 'bold')+' | D['+' '.join(stand[2])+'] U['+' '.join(stand[1])+']')
             elif stand[0] == 'tie':
-                self.sendMsg(channel, 'D['+' '.join(stand[2])+'] U['+' '.join(stand[1])+'] '+user+' tied, the bet was pushed.')
+                self.sendMsg(channel, user+': '+c.style('You tied, your bet was returned', 'bold')+' | D['+' '.join(stand[2])+'] U['+' '.join(stand[1])+']')
             else:
                 self.sendNotice(user, "You currently aren't in a game.")
         ## Doubling Down ##     
@@ -271,7 +271,7 @@ class IRCScript(template.IRCScript):
             if double and double != 'notoken':
                 self.sendNotice(user, '['+' '.join(double[0])+']')
                 if card_dealer.bust(user):
-                    self.sendMsg(channel, 'D['+' '.join(double[1])+'] U['+' '.join(double[0])+'] '+user+' went bust!')
+                    self.sendMsg(channel, user+': '+c.style('You busted', 'bold')+' | D['+' '.join(double[1])+'] U['+' '.join(double[0])+']')
             elif double and double == 'notoken':
                 self.sendNotice(user, "You don't have the tokens to back up your bet.")
             else:
@@ -280,7 +280,7 @@ class IRCScript(template.IRCScript):
         if re.match('^-(surrender|ff)$', msg, re.I):
             surrender = card_dealer.blackjack_surrender(user);
             if surrender:
-                self.sendMsg(channel, 'D['+' '.join(surrender[2])+'] U['+' '.join(surrender[1])+'] '+user+' surrendered, half the bet was refunded.')
+                self.sendMsg(channel, user+': '+c.style('You surrendered, half your bet was returned', 'bold')+' | D['+' '.join(surrender[2])+'] U['+' '.join(surrender[1])+']')
             else:
                 self.sendNotice(user, "You currently aren't in a game.")
         ## Show hand ##
@@ -298,11 +298,11 @@ class IRCScript(template.IRCScript):
         if dice:
             result = diceroll(user, int(dice.group('bet')), int(dice.group('call')));
             if result and result[1] == 'winall':
-                self.sendMsg(channel, ' '.join(str(result[0]))+' '+user+' won full bet!')
+                self.sendMsg(channel, user+': '+c.style('You win full bet!', 'bold')+' | '+' '.join(str(result[0])))
             elif result and result[1] == 'win':
-                self.sendMsg(channel, ' '.join(str(result[0]))+' '+user+' won half bet.')
+                self.sendMsg(channel, user+': '+c.style('You win half bet', 'bold')+' | '+' '.join(str(result[0])))
             elif result and result[1] == 'loss':
-                self.sendMsg(channel, ' '.join(str(result[0]))+' '+user+' lost.')
+                self.sendMsg(channel, user+': '+c.style('You lose', 'bold')+' | '+' '.join(str(result[0])))
             else:
                 self.sendNotice(user, "You don't have the tokens to back up your bet.")
                 
@@ -312,8 +312,8 @@ class IRCScript(template.IRCScript):
         if ct:
             result = cointoss(user, int(ct.group('bet')), ct.group('call').lower());
             if result and result[1] == 'win':
-                self.sendMsg(channel, '['+str(result[0])+'] '+user+' won!')
+                self.sendMsg(channel, user+': '+c.style('You win', 'bold')+' | ['+str(result[0])+']')
             elif result and result[1] == 'loss':
-                self.sendMsg(channel, '['+str(result[0])+'] '+user+' lost.')
+                self.sendMsg(channel, user+': '+c.style('You lose', 'bold')+' | ['+str(result[0])+']')
             else:
                 self.sendNotice(user, "You don't have the tokens to back up your bet.")
