@@ -63,10 +63,9 @@ if __name__ == '__main__':
             elif connected == 1:
                 pass
             
-            
+            print(line.encode('utf-8'))
             ## Search for all IRC commands ##
             if line.find('PING') !=-1:
-                print('ping')
                 client.pong(line)
             if line.find('.reload') !=-1:
                 reload_all_plugins()
@@ -98,6 +97,10 @@ if __name__ == '__main__':
                     print('current local users')
                 elif message.group('type') == '266':
                     print('current global users')
+                elif message.group('type') == '332':
+                    print('topic')
+                elif message.group('type') == '333':
+                    print('channel admin and ip')
                 elif message.group('type') == '375':
                     print('motd welcome')
                 elif message.group('type') == '372':
