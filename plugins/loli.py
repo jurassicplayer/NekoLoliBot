@@ -131,9 +131,9 @@ class loliManager():
         ## A fag named dreamcore contributed to helping come up with these algorithms ##
         height =     int(122 + (age-8)*6 + random.randrange(0,6))  #cm
         weight =     int((height/100) * (height/100) * random.randrange(14, 20))  #kg
-        bust =       random.randrange(68, 86)  #Fix
-        waist =      random.randrange(56, 77)  #Fix
-        hip =        random.randrange(68, 89)  #Fix
+        waist =      random.randrange(56, 77)     # Smallest size
+        bust =       random.randrange(waist, 86)  # Range from waist to upper limit
+        hip =        random.randrange(waist, 89)  # Range from waist to upper limit
         loligenerator = {
             'name':         lolinick,
             'level':               1,
