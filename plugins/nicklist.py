@@ -13,4 +13,5 @@ class nickTracker():
 class IRCScript(template.IRCScript):
     print('loaded nicklist')
     def nick(self, user, newnick):
-        print(user + ' changed nick to '+ newnick)
+        print('NICK CHANGED')
+        #print(user + ' changed nick to '+ newnick)
