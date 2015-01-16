@@ -39,5 +39,6 @@ Thumbs.db
 # Python #
 **/__pycache__
 logfile
-*.db
 config.py
+cookie.txt
+*.db
