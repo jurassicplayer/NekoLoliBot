@@ -9,7 +9,6 @@ import json
 
 def ud_search(search_term):
     try:
-        print(h.escape(search_term))
         data = ur.urlopen('http://api.urbandictionary.com/v0/define?term='+up.quote_plus(search_term), None,15)
     except Exception as e:
         print(e)
