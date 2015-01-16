@@ -30,7 +30,7 @@ def request_data(url):
     return jsond[0][0]
 
 class IRCScript(template.IRCScript):
-    print('loaded romaji')
+    print('loaded translate')
     def privmsg(self, user, channel, msg):
         translate = re.match('^\.tl\s(?P<from>[a-zA-Z][a-zA-Z])2(?P<to>[a-zA-Z][a-zA-Z])\s(?P<phrase>.*)', msg, re.I)
         if translate:
