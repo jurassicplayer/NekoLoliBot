@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import template
-import re, random
+import re
 import html as h
 import urllib.request as ur
 import urllib.parse as up
@@ -76,7 +76,7 @@ def nyaa_search(search, category, filtering, sorting, ordering):
     if ordering:
         if ordering == 'Ascend':
             search_order = '2'
-        elif order == 'Descend':
+        elif ordering == 'Descend':
             search_order = '1'
         else:
             search_order = '1'
