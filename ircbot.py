@@ -69,7 +69,7 @@ if __name__ == '__main__':
                 client.pong(line)
             if line.find('.reload') !=-1:
                 reload_all_plugins()
-            message = re.match('^:((?P<user>[^\!]+)\!~(?P<ident>[^@]+)@(?P<userhost>[^\s]+)|(?P<domain>([^\s]+)))\s(?P<type>([^\s]+))\s((?P<target>([^\s]+))\s(?P<message>.*)|(?P<info>.*))', line, re.I)
+            message = re.match('^:((?P<user>[^\!]+)\!(?P<ident>[^@]+)@(?P<userhost>[^\s]+)|(?P<domain>([^\s]+)))\s(?P<type>([^\s]+))\s((?P<target>([^\s]+))\s(?P<message>.*)|(?P<info>.*))', line, re.I)
             if message:
                 if message.group('type') == '001':
                     print('server welcome')
