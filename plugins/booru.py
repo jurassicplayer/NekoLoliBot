@@ -151,9 +151,20 @@ class IRCScript(template.IRCScript):
                 img_dict = b.per_page(x, boorud.group('tags'))
                 image_dict.update(img_dict)
             if image_dict:
-                #print(image_dict)
-                #print(next (iter (image_dict.values())))
                 selected_image = next (iter (image_dict.values()))[0]
                 self.sendMsg(channel, selected_image)
             else:
                 self.sendNotice(user, 'The search failed, maybe recheck your tags.')
+        randomd = re.match('^!booru random', msg, re.I)
+        if randomd:
+            sauce = width = height = size_restriction = rating = landscape_only = portrait_only = None
+            sauce = random.choice(['danbooru', 'konachan', 'yande.re', 'safebooru'])
+            b = booruManager();
+            b.set_config(sauce, width, height, size_restriction, rating, landscape_only, portrait_only);
+            image_dict = {}
+            for x in range(1, 6):
+                img_dict = b.per_page(x, boorud.group('tags'))
+                image_dict.update(img_dict)
+            if image_dict:
+                selected_image = random.choice(image_dict.keys())[0]
+                self.sendMsg(channel, selected_image)
