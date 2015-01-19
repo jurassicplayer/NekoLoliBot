@@ -7,6 +7,7 @@ import urllib.parse as up
 import urllib.request as ur
 import xml.etree.ElementTree as etree
 from colorize import Colorize as c
+from bitly import bitlyManager
 
 class booruManager:
     def __init__(self):
@@ -61,6 +62,7 @@ class booruManager:
             xml_data = raw_data.read()
             tree = etree.fromstring(xml_data)
         except Exception as e:
+            print(e)
             url = tree = None
         return url, tree
     def per_page(self, page, tags):
@@ -79,12 +81,9 @@ class booruManager:
         try:
             url, tree = self.generate_url(page, general_tags);
             tree.find('post').get('file_url')
-        except AttributeError:
-            pass
-            print('No more pages.')
         except Exception as e:
             print(e)
-            return
+            pass
         image_dictionary = self.per_image(image_dictionary, specific_tags, tree);
         return image_dictionary
 
@@ -147,11 +146,13 @@ class IRCScript(template.IRCScript):
             b = booruManager();
             b.set_config(sauce, width, height, size_restriction, rating, landscape_only, portrait_only);
             image_dict = {}
-            for x in range(1, 6):
+            for x in range(1, 2):
                 img_dict = b.per_page(x, boorud.group('tags'))
                 image_dict.update(img_dict)
             if image_dict:
-                selected_image = next (iter (image_dict.values()))[0]
+                b = bitlyManager();
+                selected_image = random.choice(list(image_dict.values()))[0]
+                selected_image = b.shorten_url(selected_image);
                 self.sendMsg(channel, selected_image)
             else:
                 self.sendNotice(user, 'The search failed, maybe recheck your tags.')
@@ -162,9 +163,54 @@ class IRCScript(template.IRCScript):
             b = booruManager();
             b.set_config(sauce, width, height, size_restriction, rating, landscape_only, portrait_only);
             image_dict = {}
-            for x in range(1, 6):
+            for x in range(1, 2):
                 img_dict = b.per_page(x, boorud.group('tags'))
                 image_dict.update(img_dict)
             if image_dict:
-                selected_image = random.choice(image_dict.keys())[0]
+                b = bitlyManager();
+                selected_image = random.choice(list(image_dict.values()))[0]
+                selected_image = b.shorten_url(selected_image);
+                self.sendMsg(channel, selected_image)
+
+        ## nsfw alt ##
+        boorud = re.match('^!nsfwbooru\s((?P<booru>(safebooru|konachan|danbooru|yande\.re))\s|)((?P<width>\d+)x(?P<height>\d+)\s|)(?P<tags>.*)', msg, re.I)
+        if boorud:
+            sauce = width = height = size_restriction = rating = landscape_only = portrait_only = None
+            if boorud.group('booru'):
+                sauce = boorud.group('booru')
+            if boorud.group('width'):
+                width = int(boorud.group('width'))
+            if boorud.group('height'):
+                height = int(boorud.group('height'))
+            if boorud.group('width') and boorud.group('height'):
+                size_restriction = True
+            rating = 'e'
+            b = booruManager();
+            b.set_config(sauce, width, height, size_restriction, rating, landscape_only, portrait_only);
+            image_dict = {}
+            for x in range(1, 2):
+                img_dict = b.per_page(x, boorud.group('tags'))
+                image_dict.update(img_dict)
+            if image_dict:
+                b = bitlyManager();
+                selected_image = random.choice(list(image_dict.values()))[0]
+                selected_image = b.shorten_url(selected_image);
+                self.sendMsg(channel, selected_image)
+            else:
+                self.sendNotice(user, 'The search failed, maybe recheck your tags.')
+        randomd = re.match('^!nsfwbooru random', msg, re.I)
+        if randomd:
+            sauce = width = height = size_restriction = rating = landscape_only = portrait_only = None
+            sauce = random.choice(['danbooru', 'konachan', 'yande.re', 'safebooru'])
+            rating = 'e'
+            b = booruManager();
+            b.set_config(sauce, width, height, size_restriction, rating, landscape_only, portrait_only);
+            image_dict = {}
+            for x in range(1, 2):
+                img_dict = b.per_page(x, boorud.group('tags'))
+                image_dict.update(img_dict)
+            if image_dict:
+                b = bitlyManager();
+                selected_image = random.choice(list(image_dict.values()))[0]
+                selected_image = b.shorten_url(selected_image);
                 self.sendMsg(channel, selected_image)
