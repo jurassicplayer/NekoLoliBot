@@ -194,13 +194,13 @@ class loliManager():
 class IRCScript(template.IRCScript):
     print('loaded loli')
     def privmsg(self, user, channel, msg):
-        if re.match('^-release\sloli', msg, re.I):
+        if re.match('^!loli\srelease', msg, re.I):
             state = loliManager.release_loli(user);
             if state == 'success':
                 self.sendMsg(channel, user+' has left his loli on the side of the road and drove off into the sunset!')
             elif state == 'failure':
                 self.sendNotice(user, "You don't have a loli to release.")
-        statsmsg = re.match('^-stats(\s(?P<user>[^\s]+)|)', msg, re.I)
+        statsmsg = re.match('^!lolistat(\s(?P<user>[^\s]+)|)', msg, re.I)
         if statsmsg:
             if statsmsg.group('user') == 'me' or statsmsg.group('user') == None:
                 target = user
@@ -209,7 +209,10 @@ class IRCScript(template.IRCScript):
             stats = loliManager.loli_stats(target);
             if stats:
                 self.sendNotice(user, '['+stats['deretype']+'] '+stats['name']+'    Lv'+str(stats['level']))
-                self.sendNotice(user, 'S: '+str(stats['S'])+'          M: '+str(stats['S']))
+                self.sendNotice(user, 'Arch: ' + stats['archetype'] + '     Accent: ' + stats['accent'])
+                self.sendNotice(user, 'Age: ' + str(stats['age']) + '  Height: ' + str(stats['height']) + '  Weight: ' + str(stats['weight']))
+                self.sendNotice(user, 'BWH: ' + str(stats['bust']) + '-' + str(stats['waist']) + '-' + str(stats['hip']))
+                self.sendNotice(user, 'S: '+str(stats['S'])+'          M: '+str(stats['M']))
                 self.sendNotice(user, 'Hp: '+str(stats['currenthp'])+'/'+str(stats['maxhp']))
                 self.sendNotice(user, 'Atk: '+str(stats['atk'])+'       Def: '+str(stats['def']))
                 self.sendNotice(user, 'Crit: '+str(stats['crit'])+'       Counter: '+str(stats['counter']))
