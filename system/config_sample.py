@@ -9,6 +9,8 @@ REALNAME = ''
 GREETER = True
 GREET_TXT = 'Hai Everybody~!'
 
-## API Keys ##
+## Bitly ##
 BITLY_USER = ''
-BITLY_API_KEY = ''
+BITLY_PASS = ''
+BITLY_CLIENTID = ''
+BITLY_CLIENT_SECRET = 's'
