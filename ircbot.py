@@ -135,7 +135,10 @@ if __name__ == '__main__':
                         print('privmsg: '+message.group('message'))
                     else:
                         user = message.group('user')
-                        channel = message.group('target')
+                        if message.group('target') == client.NICK:
+                            channel = user
+                        else:
+                            channel = message.group('target')
                         msg = message.group('message')
                         for module in loaded_plugins:
                             loaded_objects[module].privmsg(user, channel, msg[1:])
