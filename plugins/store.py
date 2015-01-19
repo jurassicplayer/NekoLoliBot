@@ -44,7 +44,7 @@ class IRCScript(template.IRCScript):
                     state, lolistats = lm.initialize_loli(user, purchasing.group('nick'))
                     if state == 'success':
                         self.sendNotice(user, '['+lolistats['name']+']: Please take care of me. *bow*')
-                        self.sendMsg(channel, user+' has bought a new loli!')
+                        self.sendMsg(channel, user+' has bought '+lolistats['name']+' the '+lolistats['deretype']+' '+lolistats['archetype']+'!')
                     elif state == 'failure':
                         self.sendNotice(user, 'You already have a loli~!')
                 else:
