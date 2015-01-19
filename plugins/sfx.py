@@ -54,6 +54,6 @@ class IRCScript(template.IRCScript):
         if re.match('.*ghost.*', msg, re.I):
             reply = random.choice(ghost_sfx)
             self.sendMsg(channel, reply)
-        if re.match('.*(haha|HUE|kek|kuku|fufu|lolo).*', msg, re.I):
+        if re.match('.*(haha|HUE|kek|kuku|fufu|lolo|lel|rofl).*', msg, re.I):
             reply = random.choice(laugh_sfx)
             self.sendMsg(channel, reply)
