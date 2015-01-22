@@ -94,7 +94,7 @@ class booruManager:
             if ('.jpg' in elem.get('file_url')) or ('.png' in elem.get('file_url')):
                 #print('Static image')
                 params += 1
-            if (elem.get('rating') == self.rating) or (self.rating == 'q' and elem.get('rating') == 's') or (self.rating == 'e'):
+            if (elem.get('rating') == self.rating) or (self.rating == 'q' and elem.get('rating') == 's'):
                 #print('Allowed if the image rating is the same as the config rating, if the image rating is s while the config is q, and if the config is e allow everything.')
                 params += 1
             if self.size_restriction is False or ((int(elem.get('width')) >= self.width) and self.size_restriction == True):
@@ -178,6 +178,8 @@ class IRCScript(template.IRCScript):
             sauce = width = height = size_restriction = rating = landscape_only = portrait_only = None
             if boorud.group('booru'):
                 sauce = boorud.group('booru')
+            else:
+                sauce = 'danbooru'
             if boorud.group('width'):
                 width = int(boorud.group('width'))
             if boorud.group('height'):
@@ -201,7 +203,7 @@ class IRCScript(template.IRCScript):
         randomd = re.match('^!nsfwbooru random', msg, re.I)
         if randomd:
             sauce = width = height = size_restriction = rating = landscape_only = portrait_only = None
-            sauce = random.choice(['danbooru', 'konachan', 'yande.re', 'safebooru'])
+            sauce = 'danbooru' #random.choice(['danbooru', 'konachan', 'yande.re', 'safebooru'])
             rating = 'e'
             b = booruManager();
             b.set_config(sauce, width, height, size_restriction, rating, landscape_only, portrait_only);
