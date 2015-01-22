@@ -35,3 +35,12 @@ class IRCScript(template.IRCScript):
                 elif a == 2:
                     string += 'T   '
             self.sendMsg(channel, string)
+        rr= re.match('^-rr(oulette|)$', msg, re.I)
+        if rr:
+            revolver = ['','','','','','bullet']
+            random.shuffle(revolver)
+            result = revolver.pop(0)
+            if result == 'bullet':
+                self.sendMsg(channel, 'BANG! Chunks of brain matter and blood splatter across the wall. Your body lifelessly slumps to the floor as your heart pumps blood out of your emptied head.')
+            else:
+                self.sendMsg(channel, 'Click!')
