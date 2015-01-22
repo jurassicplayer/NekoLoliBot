@@ -42,10 +42,11 @@ class databaseManager:
             pickle.dump(self.data, open('data/'+self.db+'.db', 'wb'))
             logging.info('**dbm** Synced to %s DB: <%s> %s' % (self.db, dataid, new_unitData))
         except:
-            self.data.update({dataid: new_unitData})
-            pickle.dump(self.data, open('data/'+self.db+'.db', 'wb'))
-            logging.info('**dbm** Created new DB [%s]: <%s> %s' % (self.db, dataid, new_unitData))
-            print('Added to database')
+            #self.data.update({dataid: new_unitData})
+            #pickle.dump(self.data, open('data/'+self.db+'.db', 'wb'))
+            #logging.info('**dbm** Created new DB [%s]: <%s> %s' % (self.db, dataid, new_unitData))
+            #print('Added to database')
+            print('Please make a data directory.')
 
     def print_database(self):
         database = pickle.load(open('data/'+self.db+'.db', 'rb'))
