@@ -2,13 +2,10 @@
 
 import template
 import re, random
-import config
 import html as h
 import urllib.parse as up
 import urllib.request as ur
 import xml.etree.ElementTree as etree
-from database import databaseManager as dbm
-from colorize import Colorize as c
 from bitly import bitlyManager
 
 
@@ -28,7 +25,6 @@ def argsplit(args):
             opts.append([arg[2:].split(':')[0], arg[2:].split(':')[1]])
         else:
             tags.append(arg)
-    tags = ' '.join(tags)
     return opts, tags
 
 class booruManager:
@@ -42,7 +38,6 @@ class booruManager:
         self.rating = 's'
         self.landscape_only = False
         self.portrait_only = False
-        self.boorudb = ''
     
     def set_config(self, opts):
         for opt in opts:
@@ -75,7 +70,6 @@ class booruManager:
             except Exception as e:
                 print(e)
                 print('Probably index error for my arrays.')
-        self.boorudb = dbm(self.source)
     
     def generate_url(self, page, general_tags):
         if self.source == 'safebooru':
@@ -89,23 +83,21 @@ class booruManager:
             tree = etree.fromstring(xml_data)
             tree.find('post').get('file_url')
         except Exception as e:
-            print(e)
             print('Failed to get from tree aka that page has no results.')
             tree = None
         return tree
         
     def per_page(self, page, tags):
         image_dictionary = {}
-        split_tags = re.compile('(?P<tag>[^\s]+)', re.I)
         match_index = 0
         general_tags = []
         specific_tags = []
-        for match in split_tags.finditer(tags):
+        for match in tags:
             if match_index < 2:
-                general_tags.append(match.group('tag'))
+                general_tags.append(match)
                 match_index += 1
             else:
-                specific_tags.append(match.group('tag'))
+                specific_tags.append(match)
         general_tags = up.quote_plus(' '.join(general_tags))
         tree = self.generate_url(page, general_tags);
         if tree:
@@ -189,14 +181,17 @@ class IRCScript(template.IRCScript):
             bm.set_config([['sauce', boorud.group('booru')]])
             bm.set_config(opts)
             image_dict = {}
-            for x in range(1, 11):
+            for x in range(1, 3):
                 img_dict = bm.per_page(x, tags)
                 image_dict.update(img_dict)
             if image_dict:
                 b = bitlyManager();
                 selected_image = random.choice(list(image_dict.values()))
+                shorturl = b.shorten_url(selected_image[0]);
                 characters = bm.get_character(selected_image[5]);
-                selected_image = b.shorten_url(selected_image[0]);
-                self.sendMsg(channel, selected_image + ' |' + characters)
+                if characters:
+                    self.sendMsg(channel, shorturl + ' |' + characters)
+                else:
+                    self.sendMsg(channel, shorturl + ' | Original')
             else:
                 self.sendNotice(user, 'The search failed, maybe recheck your tags.')
