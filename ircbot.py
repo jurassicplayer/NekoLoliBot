@@ -142,7 +142,9 @@ if __name__ == '__main__':
                         msg = message.group('message')
                         for module in loaded_plugins:
                             loaded_objects[module].privmsg(user, channel, msg[1:])
-                elif message.group('type') == 'NOTICE':
+                elif message.group('type') == 'NOTICE' and message.group('user') == 'Nickserv':
+                    print('Nickserv reply: '+message.group('message'))
+                elif message.group('type') == 'NOTICE' and message.group('user') != 'Nickserv':
                     user = message.group('user')
                     channel = message.group('target')
                     msg = message.group('message')
