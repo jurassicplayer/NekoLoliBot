@@ -122,34 +122,40 @@ if __name__ == '__main__':
                 elif message.group('type') == '479':
                     print('illegal channel name')
                 elif message.group('type') == 'PRIVMSG':
-                    if message.group('message').find('\x01ACTION')  !=-1:
-                        user = message.group('user')
-                        channel = message.group('target')
-                        msg = message.group('message')[9:-1]
-                        for module in loaded_plugins:
-                            loaded_objects[module].action(user, channel, msg)
-                    elif message.group('message').find('\x01VERSION') !=-1:
-                        user = message.group('user')
-                        client.notice(user, '\x01VERSION NekoLoliBot [Python3] -alpha-\x01\r\n')
-                    elif message.group('message').find('\x01DCC') !=-1:
-                        print('privmsg: '+message.group('message'))
-                    else:
-                        user = message.group('user')
-                        if message.group('target') == client.NICK:
-                            channel = user
-                        else:
+                    try:
+                        if message.group('message').find('\x01ACTION')  !=-1:
+                            user = message.group('user')
                             channel = message.group('target')
-                        msg = message.group('message')
-                        for module in loaded_plugins:
-                            loaded_objects[module].privmsg(user, channel, msg[1:])
+                            msg = message.group('message')[9:-1]
+                            for module in loaded_plugins:
+                                loaded_objects[module].action(user, channel, msg)
+                        elif message.group('message').find('\x01VERSION') !=-1:
+                            user = message.group('user')
+                            client.notice(user, '\x01VERSION NekoLoliBot [Python3] -alpha-\x01\r\n')
+                        elif message.group('message').find('\x01DCC') !=-1:
+                            print('privmsg: '+message.group('message'))
+                        else:
+                            user = message.group('user')
+                            if message.group('target') == client.NICK:
+                                channel = user
+                            else:
+                                channel = message.group('target')
+                            msg = message.group('message')
+                            for module in loaded_plugins:
+                                loaded_objects[module].privmsg(user, channel, msg[1:])
+                    except AttributeError:
+                        print('Notice contained no message.')
                 elif message.group('type') == 'NOTICE' and message.group('user') == 'Nickserv':
                     print('Nickserv reply: '+message.group('message'))
                 elif message.group('type') == 'NOTICE' and message.group('user') != 'Nickserv':
                     user = message.group('user')
                     channel = message.group('target')
                     msg = message.group('message')
-                    for module in loaded_plugins:
-                        loaded_objects[module].notice(user, msg[1:])
+                    try:
+                        for module in loaded_plugins:
+                            loaded_objects[module].notice(user, msg[1:])
+                    except TypeError:
+                        print('Notice contained no message.')
                 elif message.group('type') == 'JOIN':
                     user = message.group('user')
                     channel = message.group('info')[1:]
