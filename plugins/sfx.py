@@ -49,11 +49,17 @@ class IRCScript(template.IRCScript):
     print('loaded sfx')
     def privmsg(self, user, channel, msg):
         if re.match('.*(zombie|undead|ghoul).*', msg, re.I):
-            reply = random.choice(zombie_sfx)
-            self.sendMsg(channel, reply)
+            replying = random.choice(['reply']*3+['']*7)
+            if 'reply' in replying:
+                reply = random.choice(zombie_sfx)
+                self.sendMsg(channel, reply)
         if re.match('.*ghost.*', msg, re.I):
-            reply = random.choice(ghost_sfx)
-            self.sendMsg(channel, reply)
-        if re.match('.*(haha|HUE|kek|kuku|fufu|lolo|lel|rofl).*', msg, re.I):
-            reply = random.choice(laugh_sfx)
-            self.sendMsg(channel, reply)
+            replying = random.choice(['reply']*3+['']*7)
+            if 'reply' in replying:
+                reply = random.choice(ghost_sfx)
+                self.sendMsg(channel, reply)
+        if re.match('.*(hah|HUE|kek|kuku|fufu|lol|lel|rofl|lulz).*', msg, re.I):
+            replying = random.choice(['reply']*3+['']*7)
+            if 'reply' in replying:
+                reply = random.choice(laugh_sfx)
+                self.sendMsg(channel, reply)
