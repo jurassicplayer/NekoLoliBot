@@ -6,6 +6,7 @@ from database import databaseManager as dbm
 from loli import loliManager as lm
 from tokens import tokenManager as tm
 
+# price, unit-per-price, sale price
 itemdb = {
             'loli':       {'price': 1000, 'upp': 1,  'sale': 0},
             'an-pan':     {'price': 50,   'upp': 1,  'sale': 0},
@@ -20,7 +21,6 @@ itemdb = {
 class storeManager:
     def __init__(self, itemdb):
         self.userdb = dbm('user');
-        # price, unit-per-price, sale price, 
         self.itemdb = itemdb
             
     def buy_item(self, user, item, quantity, *args):
@@ -31,10 +31,10 @@ class storeManager:
         if item != 'loli' and item in self.itemdb:
             tokenstate, current_tokens, amount = token.take_tokens(user, sale_price)
             if tokenstate == 'success':
-                print('Give item')
+                #print('Give item')
                 state = 2
             elif tokenstate == 'failure':
-                print('Not enough tokens')
+                #print('Not enough tokens')
                 state = 1
         elif item == 'loli' and quantity == 1:
             tokenstate, current_tokens, amount = token.take_tokens(user, sale_price)
@@ -44,30 +44,26 @@ class storeManager:
                     state, lolistats = lm.initialize_loli(user, args[0])
                     if state == 'success':
                         lolistat = lolistats
-                        print('Give the loli')
+                        #print('Give the loli')
                     state = 3
                 except:
                     token.give_tokens(user, sale_price)
-                    print('Loli needs a name')
+                    #print('Loli needs a name')
                     state = 4
             elif tokenstate == 'failure':
-                print('Not enough tokens')
+                #print('Not enough tokens')
                 state = 1
         elif item == 'loli' and quantity > 1:
-            print('Not more than one loli')
+            #print('Not more than one loli')
             state = 5
         else:
-            print('Item not in db')
+            #print('Item not in db')
             state = 6
         return state, lolistat
-            
-    def give_item(self, user, item, quantity):
-        print('Give item')
 
     def set_sale(self, item, sale):
         if item in self.itemdb:
             self.itemdb[item]['sale'] = sale
-            print('Set sale value')
         return self.itemdb
 
 class IRCScript(template.IRCScript):
