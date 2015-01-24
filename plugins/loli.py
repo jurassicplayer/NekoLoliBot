@@ -4,7 +4,7 @@ import template
 import re, pickle, random, logging
 from database import databaseManager as dbm
 
-class loliManager():
+class loliManager:
     def initialize_loli(user, lolinick):
         sadism =     random.randrange(0, 11)
         masochism =  10-sadism
@@ -14,7 +14,7 @@ class loliManager():
         defense =    random.randrange(20, 31)
         crit =       random.randrange(1, 4)
         counter =    random.randrange(10, 21)
-        dere =       random.choice(['Yandere']*4+['Deredere']*24+['Tsundere']*24+['Kuudere']*24+['Dandere']*24)
+        dere =       random.choice(['Yandere']*2+['Deredere']*24+['Tsundere']*24+['Kuudere']*24+['Dandere']*24)
         accent =     random.choice([
             'Red tongue',
             "Philosopher's Stone",
@@ -129,11 +129,11 @@ class loliManager():
             ])
         age =        random.randrange(8, 14)
         ## A fag named dreamcore contributed to helping come up with these algorithms ##
-        height =     int(122 + (age-8)*6 + random.randrange(0,6))  #cm
-        weight =     int((height/100) * (height/100) * random.randrange(14, 20))  #kg
-        waist =      random.randrange(56, 77)     # Smallest size
-        bust =       random.randrange(waist, 86)  # Range from waist to upper limit
-        hip =        random.randrange(waist, 89)  # Range from waist to upper limit
+        height =     round(122 + (age-8)*6 + random.randrange(0,6))  #cm
+        weight =     round((height/100) * (height/100) * random.randrange(int(14+((age-8)*1.5/5)), int(18+((age-8)*3/5))))  #kg
+        waist =      round( 56 + (age-8)*3 + ((height*weight/(height+weight))-(17+(age-8)*3)) + random.randrange(0,3))    # Smallest size 56-77
+        bust =       round( 64 + (age-8)*3 + ((height*weight/(height+weight))-(17+(age-8)*3)) + random.randrange(0,3))     #random.randrange(waist-56+66, 86)  # Range from waist to upper limit
+        hip =        round( 68 + (age-8)*3 + ((height*weight/(height+weight))-(17+(age-8)*3)) + random.randrange(0,3))    #random.randrange(waist-56+68, 89)  # Range from waist to upper limit
         loligenerator = {
             'name':         lolinick,
             'level':               1,
@@ -172,6 +172,49 @@ class loliManager():
             state = 'success'
             logging.info('**lm** <%s> Generated a loli' % user)
         return state, lolistats
+    def heal_loli(user, amount):
+        userdb = dbm('user');
+        userdb.load_database();
+        userData, lolistats = userdb.load_parameter(user, 'loli', None);
+        if lolistats:
+            hp_lost = lolistats['maxhp'] - lolistats['currenthp']
+            if hp_lost is 0:
+                state = 'fullhp'
+            elif hp_lost >= amount:
+                lolistats['currenthp'] += amount
+                userData['loli'] = lolistats
+                userdb.save_database(user, userData)
+                state = 'success'
+            elif hp_lost < amount:
+                lolistats['currenthp'] = lolistats['maxhp']
+                userData['loli'] = lolistats
+                userdb.save_database(user, userData)
+                state = 'success'
+        else:
+            state = 'failure'
+        return state
+    def damage_loli(user, amount):
+        userdb = dbm('user');
+        userdb.load_database();
+        userData, lolistats = userdb.load_parameter(user, 'loli', None);
+        if lolistats:
+            current_hp = lolistats['currenthp']
+            if current_hp is 0:
+                state = 'zerohp'
+            elif current_hp > amount:
+                lolistats['currenthp'] -= amount
+                userData['loli'] = lolistats
+                userdb.save_database(user, userData)
+                state = 'success'
+            elif current_hp <= amount:
+                lolistats['currenthp'] = int('0')
+                lolistats['fainted'] += 1
+                userData['loli'] = lolistats
+                userdb.save_database(user, userData)
+                state = 'knockout'
+        else:
+            state = 'failure'
+        return state
     def release_loli(user):
         userdb = dbm('user');
         userdb.load_database();
@@ -208,14 +251,13 @@ class IRCScript(template.IRCScript):
                 target = statsmsg.group('user')
             stats = loliManager.loli_stats(target);
             if stats:
-                self.sendNotice(user, '['+stats['deretype']+'] '+stats['name']+'    Lv'+str(stats['level']))
-                self.sendNotice(user, 'Arch: ' + stats['archetype'] + '     Accent: ' + stats['accent'])
-                self.sendNotice(user, 'Age: ' + str(stats['age']) + '  Height: ' + str(stats['height']) + '  Weight: ' + str(stats['weight']))
-                self.sendNotice(user, 'BWH: ' + str(stats['bust']) + '-' + str(stats['waist']) + '-' + str(stats['hip']))
-                self.sendNotice(user, 'S: '+str(stats['S'])+'          M: '+str(stats['M']))
-                self.sendNotice(user, 'Hp: '+str(stats['currenthp'])+'/'+str(stats['maxhp']))
-                self.sendNotice(user, 'Atk: '+str(stats['atk'])+'       Def: '+str(stats['def']))
-                self.sendNotice(user, 'Crit: '+str(stats['crit'])+'       Counter: '+str(stats['counter']))
-                self.sendNotice(user, 'Felled: '+str(stats['felled'])+'     Fainted: '+str(stats['fainted']))
+                self.sendNotice(user, '[%s] %s the %s [Equip: %s]' % (stats['deretype'], stats['name'], stats['archetype'], stats['accent']))
+                self.sendNotice(user, '[Age: %s][H: %s][W: %s][BWH: %s-%s-%s]' % (stats['age'], stats['height'], stats['weight'], stats['bust'], stats['waist'], stats['hip']))
+                self.sendNotice(user, '[Lv: %s][Hp: %s/%s][S: %s][M: %s][Atk: %s][Def: %s][Crit: %s][Counter: %s]' % (stats['level'], stats['currenthp'], stats['maxhp'], stats['S'], stats['M'], stats['atk'], stats['def'], stats['crit'], stats['counter']))
+                self.sendNotice(user, '[Felled: %s][Fainted: %s]' % (stats['felled'], stats['fainted']))
             else:
                 self.sendNotice(user, "I can't seem to find the loli.")
+        if re.match('^-revive', msg, re.I):
+            state = loliManager.heal_loli(user, 999999999);
+        if re.match('^-smite', msg, re.I):
+            state = loliManager.damage_loli(user, 999999999);
