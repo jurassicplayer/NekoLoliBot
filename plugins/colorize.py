@@ -79,4 +79,4 @@ class IRCScript(template.IRCScript):
                     message = Colorize.style(message, 'strike')
                 if 'u' in rainbow.group('option'):
                     message = Colorize.style(message, 'underline')
-            self.sendMsg(self.channel, message)
+            self.sendMsg(channel, message)
