@@ -1,1 +1,4 @@
-A jekyll website template.
+NekoLoliBot
+===========
+
+The website for NekoLoliBot.
