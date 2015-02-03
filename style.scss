@@ -25,7 +25,6 @@ body {
 }
 
 .container {
-  background: $fg_base;
   margin: 0 auto;
   max-width: 740px;
   padding: 0 10px;
@@ -155,6 +154,7 @@ nav {
 
 .post {
   background-color: $fg_base;
+  max-height: 200px;
   blockquote {
     margin: 1.8em .8em;
     border-left: 2px solid $gray;
