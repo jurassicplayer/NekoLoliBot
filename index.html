@@ -5,11 +5,11 @@ layout: default
 <div class="posts">
   {% for post in site.posts %}
     <article class="post">    
-      
-      <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
+      <span class="post-date"><h4>{{ post.date | date: "%B %e, %Y" }}</h4></span>
+      <h3><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h3>
           
-      <div class="entry" max-height="200px" overflow="hidden">
-        {{ post.content | truncatewords:40}}
+      <div class="entry" style="max-height: 80px; overflow: hidden;">
+        {{ post.content | truncatewords:100}}
       </div>
       
       <a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a>
