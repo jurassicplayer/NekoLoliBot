@@ -1,6 +1,6 @@
 ---
 layout: post
-title: &#91;SDDM&#93; Illya Dance
+title: SDDM - Illya Dance
 ---
 <img class="preview_image" src="https://raw.githubusercontent.com/jurassicplayer/Weeb-Themes/master/weeb-sddm-themes/illyadance/screenshot.jpg" />
 
