@@ -10,4 +10,5 @@ title: KSplashX - Snowy Night Miku
 - Type: KSplashX
 - Size: ~400KB
 - Animated Bg
+- [Kde-Look](kde-look.org/content/show.php/Snowy+Night+Miku?content=164518)
 - [Source](https://github.com/jurassicplayer/Weeb-Themes/tree/master/weeb-ksplashx-themes/SnowyNightMiku)
