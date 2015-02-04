@@ -2,7 +2,7 @@
 layout: post
 title: KSplashX - Snowy Night Miku
 ---
-<img class="preview_image" height="250px" style="padding-right: 30px;" align="left" src="https://raw.githubusercontent.com/jurassicplayer/Weeb-Themes/master/weeb-ksplashx-themes/SnowyNightMiku/Preview.png" />
+<img class="preview_image" height="250px" style="padding-right: 30px;" align="left" src="http://kde-look.org/CONTENT/content-pre3/164518-3.png" />
 
 <br>
 
