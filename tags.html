@@ -3,7 +3,7 @@ layout: default
 title: Tags
 permalink: /
 ---
-{% assign subrepo = NekoLoliBot %}
+{% assign subrepo = '/NekoLoliBot' %}
 
 {% capture tags %}
     {% for tag in site.tags %}
@@ -19,19 +19,19 @@ permalink: /
             {% if tag == otag %}              
                 <div class="post" max-height="80px">
                     {% if post.series %}
-                    <a href="{{ site.url }}{{ post.url }}" class="series-recent">Series: {{ post.series }}</a>
+                    <a href="{{ site.url }}{{ subrepo }}{{ post.url }}" class="series-recent">Series: {{ post.series }}</a>
                     {% endif %}
                     <span class="post-date"><h4>{{ post.date | date: "%B %e, %Y" }}</h4></span>
-                    <h3><a href="{{ site.url }}/{{ subrepo }}{{ post.url }}">{{ post.title }}</a></h3>
+                    <h3><a href="{{ site.url }}{{ subrepo }}{{ post.url }}">{{ post.title }}</a></h3>
                     
                     {{ post.excerpt | markdownify }}
                     <div class="tagPanel">
                         <span>Tags: </span>
                     {% for t in post.tags %}
-                        <span class="tag"><a href="{{ site.url }}/{{ subrepo }}/?tag={{ t }}">{{ t }}</a></span>
+                        <span class="tag"><a href="{{ site.url }}{{ subrepo }}/?tag={{ t }}">{{ t }}</a></span>
                     {% endfor%}
                     </div>
-                    <h5 class="read-more"><a href="{{ site.url }}/{{ subrepo }}{{ post.url }}" target="_blank">Read More</a></h5>
+                    <h5 class="read-more"><a href="{{ site.url }}{{ subrepo }}{{ post.url }}" target="_blank">Read More</a></h5>
                 </div>
                 <br>
             {% endif %}
