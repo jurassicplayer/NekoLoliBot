@@ -3,7 +3,7 @@ layout: default
 ---
 
 <div class="posts">
-  {% for post in site.categories.blog %}
+  {% for post in site.posts %}
     <article class="post">    
       <span class="post-date"><h4>{{ post.date | date: "%B %e, %Y" }}</h4></span>
       <h3><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h3>
@@ -14,7 +14,7 @@ layout: default
       <div class="tagPanel">
         <span>Tags: </span>
         {% for t in post.tags %}
-        <span class="tag"><a href="{{ site.url }}/blog/?tag={{ t }}">{{ t }}</a></span>
+        <span class="tag"><a href="{{ site.url }}/Weeb-Themes/tags/?tag={{ t }}">{{ t }}</a></span>
         {% endfor%}
       </div>
       <span><a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a></span>
