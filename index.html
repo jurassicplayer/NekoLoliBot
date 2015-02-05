@@ -1,12 +1,13 @@
 ---
 layout: default
 ---
+{% assign subrepo = /NekoLoliBot %}
 
 <div class="posts">
   {% for post in site.posts %}
     <article class="post">    
       <span class="post-date"><h4>{{ post.date | date: "%B %e, %Y" }}</h4></span>
-      <h3><a href="{{ site.baseurl }}/NekoLoliBot{{ post.url }}">{{ post.title }}</a></h3>
+      <h3><a href="{{ site.baseurl }}{{ subrepo }}{{ post.url }}">{{ post.title }}</a></h3>
           
       <div class="entry" style="max-height: 350px; overflow: hidden;">
         {{ post.content | truncatewords:100}}
@@ -14,10 +15,10 @@ layout: default
       <div class="tagPanel">
         <span>Tags: </span>
         {% for t in post.tags %}
-        <span class="tag"><a href="{{ site.url }}/Weeb-Themes/tags/?tag={{ t }}">{{ t }}</a></span>
+        <span class="tag"><a href="{{ site.url }}{{ subrepo }}/?tag={{ t }}">{{ t }}</a></span>
         {% endfor%}
       </div>
-      <span><a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a></span>
+      <span><a href="{{ site.baseurl }}{{ subrepo }}{{ post.url }}" class="read-more">Read More</a></span>
     </article>
     <br>
   {% endfor %}
