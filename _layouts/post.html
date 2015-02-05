@@ -9,9 +9,11 @@ layout: default
   <div class="entry">
     {{ content }}
   </div>
-
-  <div class="date">
-    Written on {{ page.date | date: "%B %e, %Y" }}
+  <div class="tagPanel">
+    <span>Tags: </span>
+    {% for t in page.tags %}
+    <span class="tag"><a href="{{ site.url }}/blog/?tag={{ t }}">{{ t }}</a></span>
+    {% endfor%}
   </div>
 
   {% include disqus.html disqus_identifier=page.disqus_identifier %}
