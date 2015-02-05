@@ -15,7 +15,7 @@ layout: default
       <div class="tagPanel">
         <span>Tags: </span>
         {% for t in post.tags %}
-        <span class="tag"><a href="{{ site.url }}{{ subrepo }}/?tag={{ t }}">{{ t }}</a></span>
+        <span class="tag"><a href="{{ site.url }}{{ subrepo }}/tags/?tag={{ t }}">{{ t }}</a></span>
         {% endfor%}
       </div>
       <span><a href="{{ site.baseurl }}{{ subrepo }}{{ post.url }}" class="read-more">Read More</a></span>

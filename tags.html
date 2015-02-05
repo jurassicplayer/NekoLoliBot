@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Tags
-permalink: /
+permalink: /tags/
 ---
 {% assign subrepo = '/NekoLoliBot' %}
 
@@ -28,7 +28,7 @@ permalink: /
                     <div class="tagPanel">
                         <span>Tags: </span>
                     {% for t in post.tags %}
-                        <span class="tag"><a href="{{ site.url }}{{ subrepo }}/?tag={{ t }}">{{ t }}</a></span>
+                        <span class="tag"><a href="{{ site.url }}{{ subrepo }}/tags/?tag={{ t }}">{{ t }}</a></span>
                     {% endfor%}
                     </div>
                     <h5 class="read-more"><a href="{{ site.url }}{{ subrepo }}{{ post.url }}" target="_blank">Read More</a></h5>
