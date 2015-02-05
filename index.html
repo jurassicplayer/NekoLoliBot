@@ -4,21 +4,15 @@ layout: default
 {% assign subrepo = '/NekoLoliBot' %}
 
 <div class="posts">
+  Available NekoLoliBot Commands:
+  
   {% for post in site.posts %}
     <article class="post">    
-      <span class="post-date"><h4>{{ post.date | date: "%B %e, %Y" }}</h4></span>
-      <h3><a href="{{ site.baseurl }}{{ subrepo }}{{ post.url }}">{{ post.title }}</a></h3>
-          
-      <div class="entry" style="max-height: 350px; overflow: hidden;">
+      <div class="command-title">+Clickable {{ post.title }}</div>
+      <div class="command-help" style="max-height: 0px; overflow: hidden;">
+        Will show when title clicked.
         {{ post.content | truncatewords:100}}
       </div>
-      <div class="tagPanel">
-        <span>Tags: </span>
-        {% for t in post.tags %}
-        <span class="tag"><a href="{{ site.url }}{{ subrepo }}/tags/?tag={{ t }}">{{ t }}</a></span>
-        {% endfor%}
-      </div>
-      <span><a href="{{ site.baseurl }}{{ subrepo }}{{ post.url }}" class="read-more">Read More</a></span>
     </article>
     <br>
   {% endfor %}
