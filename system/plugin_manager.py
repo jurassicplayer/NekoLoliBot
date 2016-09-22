@@ -55,5 +55,14 @@ class PluginManager:
     def process_data_thread(self, recv_queue):
         while 1:
             server, message = recv_queue.get()
-            log.info(server.HOST + ' ' + message.raw_message)
+            log.info('[Server: %s][Prefix: %s][User: %s][Host: %s][Cmd: %s][Params: %s][Trailing: %s]' % (server.HOST, message.prefix, message.user, message.host, message.cmd, message.params, message.trailing))
+            #log.info('[Raw: %s]' % message.raw_message)
+            for plugin_name in self.plugin_list:
+                module = sys.modules[plugin_name]
+                #if message.cmd == 'ACTION':
+                #    module.IRCScript(server).action(message.prefix, message.params, message.trailing)
+                #elif message.cmd == 'NOTICE':
+                #    module.IRCScript(server).notice(message.prefix, message.params, message.trailing)
+                #elif message.cmd == 'PRIVMSG':
+                #    module.IRCScript(server).privmsg(message.prefix, message.params, message.trailing)
             recv_queue.task_done()
