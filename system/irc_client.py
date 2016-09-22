@@ -345,6 +345,7 @@ class IRCMessage:
                     self.trailing = self.trailing[8:-1]
                 elif self.trailing.find('\x01VERSION') != -1:
                     self.cmd = 'VERSION'
+                    self.trailing = ''
                 elif self.trailing.find('\x01DCC') != -1:
                     self.cmd = 'DCC'
                 else: pass
