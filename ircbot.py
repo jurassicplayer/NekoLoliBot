@@ -4,7 +4,6 @@ import os, sys, re, logging
 import importlib as i
 
 sys.path.append('system')
-#import config
 from irc_client import IRCClient
 from plugin_manager import PluginManager
 
