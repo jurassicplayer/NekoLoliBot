@@ -1,7 +1,6 @@
  #!/usr/bin/env python
 
-import os, sys, logging, threading
-import importlib as i
+import importlib, logging, os, re, sys, threading
 
 #Plugins folder
 plugin_folder = 'plugins'
@@ -15,54 +14,88 @@ class PluginManager:
         self.process_thread.start()
         self.load_all_plugins()
 
-
     def load_plugin(self, plugin_name):
         if plugin_name == "template": return
         try:
-            module = i.import_module(plugin_name)
+            module = importlib.import_module(plugin_name)
             self.plugin_list.add(plugin_name)
-            log.info('Loaded plugin: %s' % plugin_name)
+            log.info('>> Loaded plugin: %s' % plugin_name)
         except:
-            log.warning('Failed to load plugin: %s' % plugin_name)
+            e = sys.exc_info()
+            log.error('>> Failed to load plugin: (%s) "%s: %s"' % (plugin_name, str(e[0]).split("'")[1], e[1]))
     def unload_plugin(self, plugin_name):
         self.plugin_list.remove(plugin_name)
         del sys.modules[plugin_name]
         try:
             module = sys.modules[plugin_name]
-            log.warning('Failed to unload plugin: %s' % plugin_name)
+            log.warning('>> Failed to unload plugin: %s' % plugin_name)
         except KeyError:
-            log.info('Unloaded plugin: %s' % plugin_name)
+            log.info('>> Unloaded plugin: %s' % plugin_name)
     def reload_plugin(self, plugin_name):
         try:
             module = sys.modules[plugin_name]
-            module = i.reload(module)
-            log.info('Reloaded plugin: %s' % plugin_name)
+            module = importlib.reload(module)
+            log.info('>> Reloaded plugin: %s' % plugin_name)
         except KeyError:
-            module = load_plugin(plugin_name)
+            module = self.load_plugin(plugin_name)
     def load_all_plugins(self):
         for file_name in os.listdir(plugin_folder):
             if file_name.endswith(".py"):
                 plugin_name = file_name[:-3]
                 self.load_plugin(plugin_name)
     def unload_all_plugins(self):
+        plugin_list = self.plugin_list.copy()
         for plugin_name in plugin_list:
             self.unload_plugin(plugin_name)
     def reload_all_plugins(self):
-        for plugin_name in plugin_list:
+        for plugin_name in self.plugin_list:
             self.reload_plugin(plugin_name)
-
 
     def process_data_thread(self, recv_queue):
         while 1:
             server, message = recv_queue.get()
-            log.info('[Server: %s][Prefix: %s][User: %s][Host: %s][Cmd: %s][Params: %s][Trailing: %s]' % (server.HOST, message.prefix, message.user, message.host, message.cmd, message.params, message.trailing))
-            #log.info('[Raw: %s]' % message.raw_message)
-            for plugin_name in self.plugin_list:
-                module = sys.modules[plugin_name]
-                #if message.cmd == 'ACTION':
-                #    module.IRCScript(server).action(message.prefix, message.params, message.trailing)
-                #elif message.cmd == 'NOTICE':
-                #    module.IRCScript(server).notice(message.prefix, message.params, message.trailing)
-                #elif message.cmd == 'PRIVMSG':
-                #    module.IRCScript(server).privmsg(message.prefix, message.params, message.trailing)
+            plugin_msg = re.match('^.plugin\s(?P<command>\S+)\s(?P<plugins>.*)', message.trailing, re.I)
+            if plugin_msg:
+                plugins = plugin_msg.group('plugins')
+                if plugins != 'all':
+                    plugins = plugins.replace('|', ' ').replace(',',' ')
+                    plugins = plugins.split(' ')
+                if plugin_msg.group('command') == 'load':
+                    if plugins == 'all':
+                        self.load_all_plugins()
+                    else:
+                        for plugin_name in plugins:
+                            self.load_plugin(plugin_name)
+                elif plugin_msg.group('command') == 'unload':
+                    if plugins == 'all':
+                        self.unload_all_plugins()
+                    else:
+                        for plugin_name in plugins:
+                            self.unload_plugin(plugin_name)
+                elif plugin_msg.group('command') == 'reload':
+                    if plugins == 'all':
+                        self.reload_all_plugins()
+                    else:
+                        for plugin_name in plugins:
+                            self.reload_plugin(plugin_name)
+            else:
+                for plugin_name in self.plugin_list:
+                    module = sys.modules[plugin_name]
+                    try:
+                        p = module.IRCScript(server)
+                        p.servermsg(message.prefix, message.user, message.host, message.cmd, message.params, message.trailing)
+                        if message.cmd == 'ACTION': p.action(message.prefix, message.params, message.trailing)
+                        elif message.cmd == 'JOIN': p.join(message.prefix, message.trailing)
+                        elif message.cmd == 'KICK': p.kick(message.prefix, message.params)
+                        elif message.cmd == 'MODE': pass #p.mode() #FIXIT
+                        elif message.cmd == 'NICK': p.nick(message.prefix, message.params)
+                        elif message.cmd == 'NOTICE': p.notice(message.prefix, message.params, message.trailing)
+                        elif message.cmd == 'PART': p.part(message.prefix, message.params)
+                        elif message.cmd == 'PRIVMSG': p.privmsg(message.prefix, message.params, message.trailing)
+                        elif message.cmd == 'QUIT': pass #p.quit() #FIXIT
+                    except:
+                        e = sys.exc_info()
+                        error_string = '>> Plugin error: (%s) "%s: %s"' % (plugin_name, str(e[0]).split("'")[1], e[1])
+                        log.error(error_string)
+                        print(error_string)
             recv_queue.task_done()
