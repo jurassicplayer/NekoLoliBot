@@ -5,6 +5,7 @@ import socket, logging, threading, queue, os, sys, re
 log = logging.getLogger(__name__)
 class IRCClient:
     def __init__(self, recv_queue):
+        #FIXIT
         self.server = IRCServer('irc.rizon.net', 6667, 'NekoLoliBot', 'NLB', 'ToyBot', ['#RandStr'], recv_queue)
         self.server2 = IRCServer('irc.irchighway.net', 6667, 'NekoLoliBot', 'NLB', 'ToyBot', ['#RandStr'], recv_queue)
         self.server.connect()
@@ -36,8 +37,9 @@ class IRCServer:
                 line = str.rstrip(line)
                 line = str.strip(line)
                 message_object = IRCMessage(line)
+                log.info('[Server: %s][Prefix: %s][User: %s][Host: %s][Cmd: %s][Params: %s][Trailing: %s]' % (self.HOST, message_object.prefix, message_object.user, message_object.host, message_object.cmd, message_object.params, message_object.trailing))
+                #log.info('[Raw: %s]' % message_object.raw_message)
                 self.recv_queue.put((self, message_object))
-                #log.info(line)
                 if message_object.cmd == 'RPL_ENDOFMOTD' and self.connection_status == 0:
                     self.join(self.CHAN);
                     self.connection_status = 1
@@ -47,98 +49,98 @@ class IRCServer:
                     self.pong(line)
     def connect(self):
         self.irc.connect((self.HOST, self.PORT))
-        log.info('<<Connecting to %s:%s' % (self.HOST, self.PORT))
+        log.info('<< Connecting to %s:%s' % (self.HOST, self.PORT))
         self.recv_thread.start()
         self.nick(self.NICK)
         self.user()
     def action(self, target, message):
         self.irc.send(bytes('PRIVMSG %s :\x01ACTION %s\x01\r\n' % (target, message), 'utf-8'))
-        log.info('<<ACTION %s :%s' % (target, message))
+        log.info('<< ACTION %s :%s' % (target, message))
     def admin(self, server):
         self.irc.send(bytes('ADMIN %s\r\n' % server, 'utf-8'))
-        log.info('<<Requesting admin info' % server)
+        log.info('<< Requesting admin info' % server)
     def away(self, message):
         if message:
             self.irc.send(bytes('AWAY %s\r\n' % message, 'utf-8'))
-            log.info('<<Setting away status with message: %s' % message)
+            log.info('<< Setting away status with message: %s' % message)
         else:
             self.irc.send(bytes('AWAY\r\n', 'utf-8'))
-            log.info('<<Removing away status')
+            log.info('<< Removing away status')
     def info(self):
         self.irc.send(bytes('INFO\r\n', 'utf-8'))
-        log.info('<<Requesting information')
+        log.info('<< Requesting information')
     def invite(self, nickname, channel):
         self.irc.send(bytes('INVITE %s %s\r\n' % (nickname, channel), 'utf-8'))
-        log.info('<<Inviting %s to %s' % (nickname, channel))
+        log.info('<< Inviting %s to %s' % (nickname, channel))
     def ison(self, nicknames):
         ## Nicknames must be in an array. 
         nickname = ' '.join(nicknames)
         self.irc.send(bytes('ISON %s\r\n' % nickname, 'utf-8'))
-        log.info('<<Requesting if users are online: %s' % nickname)
+        log.info('<< Requesting if users are online: %s' % nickname)
     def join(self, channels):
         for channel in channels:
             if channel not in self.CHAN:
                 self.CHAN.append(channel)
             self.irc.send(bytes('JOIN %s\r\n' % channel, 'utf-8'))
-            log.info('<<Joining %s' % channel)
+            log.info('<< Joining %s %s' % (self.HOST, channel))
     def kick(self, channel, client, message):
         if message:
             self.irc.send(bytes('KICK %s %s %s\r\n' % (channel, client, message), 'utf-8'))
-            log.info('<<Kicking user %s from %s: %s' % (client, channel, message))
+            log.info('<< Kicking user %s from %s: %s' % (client, channel, message))
         else:
             self.irc.send(bytes('KICK %s %s\r\n' % (channel, client), 'utf-8'))
-            log.info('<<Kicking user %s from %s' % (client, channel))
+            log.info('<< Kicking user %s from %s' % (client, channel))
     def mode(self, target, flags, args):
         if args:
             self.irc.send(bytes('MODE %s %s %s\r\n' % (target, flags, args), 'utf-8'))
-            log.info('<<Setting %s on %s with args: %s' % (flags, target, args))
+            log.info('<< Setting %s on %s with args: %s' % (flags, target, args))
         else:
             self.irc.send(bytes('MODE %s %s\r\n' % (target, flags), 'utf-8'))
-            log.info('<<Setting %s on %s with args: %s' % (flags, target))
+            log.info('<< Setting %s on %s with args: %s' % (flags, target))
     def names(self, channels):
         self.irc.send(bytes('NAMES %s\r\n' % channels, 'utf-8'))
-        log.info('<<Requesting users on %s' % channels)
+        log.info('<< Requesting users on %s' % channels)
     def nick(self, NICK):
         self.irc.send(bytes('NICK %s\r\n' % NICK, 'utf-8'))
-        log.info('<<Requesting nick %s' % NICK)
+        log.info('<< Requesting nick %s' % NICK)
     def notice(self, target, message):
         self.irc.send(bytes('NOTICE %s :%s\r\n' % (target, message), 'utf-8'))
-        log.info('<<NOTICE %s :%s' % (target, message))
+        log.info('<< NOTICE %s :%s' % (target, message))
     def part(self, channels):
         self.irc.send(bytes('PART %s\r\n' % channels, 'utf-8'))
-        log.info('<<Parting from %s' % channels)
+        log.info('<< Parting from %s' % channels)
     def ping(self, line):
         self.irc.send(bytes('PING %s\r\n' % line, 'utf-8'))
-        log.info('<<PING %s' % line.split()[1])
+        log.info('<< PING %s' % line.split()[1])
     def pong(self, line):
         self.irc.send(bytes('PONG %s\r\n' % line.split()[1], 'utf-8'))
-        log.info('<<PONG %s' % line.split()[1])
+        log.info('<< PONG %s' % line.split()[1])
     def privmsg(self, target, message):
         self.irc.send(bytes('PRIVMSG %s :%s\r\n' % (target, message), 'utf-8'))
-        log.info('<<PRIVMSG %s :%s' % (target, message))
+        log.info('<< PRIVMSG %s :%s' % (target, message))
     def topic(self, channel, topic):
         self.irc.send(bytes('TOPIC %s %s\r\n' % (channel, topic), 'utf-8'))
-        log.info('<<Setting topic in %s :%s' % (channel, topic))
+        log.info('<< Setting topic in %s :%s' % (channel, topic))
     def user(self):
         self.irc.send(bytes('USER %s %s bla :%s \r\n' % (self.IDENT, self.HOST, self.REALNAME), 'utf-8'))
-        log.info('<<Identiftying as %s' % self.IDENT)
+        log.info('<< Identiftying as %s' % self.IDENT)
     def userhost(self, nicknames):
         ## Nicknames must be in an array. 
         nickname = ' '.join(nicknames)
         self.irc.send(bytes('USERHOST %s\r\n' % nickname, 'utf-8'))
-        log.info('<<Requesting information of user: %s' % nickname)
+        log.info('<< Requesting information of user: %s' % nickname)
     def who(self, search):
         self.irc.send(bytes('WHO %s\r\n' % search, 'utf-8'))
-        log.info('<<Requesting users matching %s' % search)
+        log.info('<< Requesting users matching %s' % search)
     def whois(self, nicknames):
         self.irc.send(bytes('WHOIS %s\r\n' % nicknames, 'utf-8'))
-        log.info('<<Requesting whois user info for %s' % nicknames)
+        log.info('<< Requesting whois user info for %s' % nicknames)
     def whowas(self, nickname):
         self.irc.send(bytes('WHOWAS %s\r\n' % nickname, 'utf-8'))
-        log.info('<<Requesting whowas user info for %s' % nickname)
+        log.info('<< Requesting whowas user info for %s' % nickname)
     def sendIRC(self, msg):
         self.irc.send(bytes('%s\r\n' % msg, 'utf-8'))
-        log.info('<<Sending %s' % msg)
+        log.info('<< Sending %s' % msg)
 class IRCChannel:
     def __init__(self, server):
         self.connection_status = 0
@@ -158,22 +160,27 @@ class IRCMessage:
         # A certain few RPL_Codes don't follow the standard IRC message #
         # format and give back information as a parameter. This is just #
         # a hacky solution to slap all parameters except the first back #
-        # into the trailing section.                                    #
+        # into the trailing section. (Applies to rizon.net)             #
         #################################################################
         try:
             old_params = self.params.split(' ', 1)
             self.params = old_params[0]
             self.trailing = '%s :%s' % (old_params[1], self.trailing)
-        except: log.warning(self.params)
+        except: pass
     def process_message(self, raw_message):
-        message = re.match('^(:((?P<servername>\S+?)|(?P<nick>\S+?))(!(?P<user>\S+?)|)(@(?P<host>\S+?)|)\s|)(?P<command>\S+)(\s(?P<params>.*?)(?=\s:)|)(\s|)(:(?P<trailing>.*)|)', raw_message, re.I)
+        message = re.match('^(:((?P<servername>\S+?)|(?P<nick>\S+?))(!(?P<user>\S+?)|)(@(?P<host>\S+?)|)\s|)(?P<command>\S+)(\s(?P<params>.*)|)', raw_message, re.I)
         if message:
             if message.group('servername'): self.prefix = message.group('servername')
             if message.group('user'): self.user = message.group('user')
             if message.group('host'): self.host = message.group('host')
             if message.group('command'): self.cmd = message.group('command')
-            if message.group('params'): self.params = message.group('params')
-            if message.group('trailing'): self.trailing = message.group('trailing')
+            if message.group('params'):
+                try:
+                    split = message.group('params').split(' :', 1)
+                    self.params = split[0]
+                    self.trailing = split[1]
+                except:
+                    self.params = message.group('params')
             #RPL Command Conversion#
             ## Sauce: http://www.networksorcery.com/enp/protocol/irc.htm
             ## Supplement: https://www.alien.net.au/irc/irc2numerics.html
@@ -278,6 +285,7 @@ class IRCMessage:
             elif self.cmd == '393': self.cmd = 'RPL_USERS'
             elif self.cmd == '394': self.cmd = 'RPL_ENDOFUSERS'
             elif self.cmd == '395': self.cmd = 'RPL_NOUSERS'
+            elif self.cmd == '396': self.cmd = 'RPL_HOSTHIDDEN'
             elif self.cmd == '401': self.cmd = 'ERR_NOSUCHNICK'
             elif self.cmd == '402': self.cmd = 'ERR_NOSUCHSERVER'
             elif self.cmd == '403': self.cmd = 'ERR_NOSUCHCHANNEL'
@@ -351,5 +359,6 @@ class IRCMessage:
                 else: pass
             elif self.cmd == 'QUIT': pass
             else: 
-                log.warning('Unknown IRC command: %s' % self.cmd)
+                log.warning('>> Unknown IRC command: %s' % self.cmd)
                 pass
+        else: log.warning('>> Unknown IRC message: %s' % self.raw_mesage)
