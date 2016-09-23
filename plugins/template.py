@@ -2,24 +2,22 @@
 
 class IRCScript:
     def __init__(self, server):
+        self.server = server
         self.sendMsg = server.privmsg
         self.sendNotice = server.notice
         self.sendAction = server.action
         self.sendKick = server.kick
         self.sendIRC = server.sendIRC
-        self.join = server.join
-        self.part = server.part
+        self.sendJoin = server.join
+        self.sendPart = server.part
         self.NICK = server.NICK
-    def privmsg(self, origin, target, msg): pass
+    def servermsg(self, prefix, user, host, command, params, trailing): pass
     def action(self, origin, target, msg): pass
+    def join(self, origin, target): pass
+    def kick(self, kicker, params): pass
+    def mode(self, mod, user, channel, mode): pass #FIXIT
+    def nick(self, origin, target): pass
     def notice(self, origin, target, msg): pass
-    def joined(self, user, channel): pass
-    def userJoined(self, user, channel): pass
-    def nick(self, user, newnick): pass
-    def left(self, user, channel): pass
-    def userLeft(self, user, channel): pass
-    def userQuit(self, user, quitMessage): pass
-    def kicked(self, channel, kicker, msg): pass
-    def userKicked(self, kickee, channel, kicker, msg): pass
-    def userMode(self, mod, user, channel, mode): pass
-    def channelMode(self, mod, channel, mode): pass
+    def part(self, origin, target): pass
+    def privmsg(self, origin, target, msg): pass
+    def quit(self, user, quitMessage): pass #FIXIT
