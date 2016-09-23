@@ -38,6 +38,7 @@ Thumbs.db
 
 # Python #
 **/__pycache__
+log
 logfile
 config.py
 cookie.txt
