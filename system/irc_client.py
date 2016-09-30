@@ -5,14 +5,16 @@ import socket, logging, threading, queue, os, sys, re
 log = logging.getLogger(__name__)
 class IRCClient:
     def __init__(self, recv_queue):
+        self.server_list = {}
         #FIXIT
-        self.server = IRCServer('irc.rizon.net', 6667, 'NekoLoliBot', 'NLB', 'ToyBot', ['#RandStr'], recv_queue)
-        self.server2 = IRCServer('irc.irchighway.net', 6667, 'NekoLoliBot', 'NLB', 'ToyBot', ['#RandStr'], recv_queue)
-        self.server.connect()
-        self.server2.connect()
+        self.server_list.update({'gbatemp': IRCServer('irc.gbatemp.net', 6667, 'jplayer_bot', 'NLB', 'ToyBot', recv_queue, CHAN={'#gbatemp.net':''})})
+        self.server_list.update({'rizon': IRCServer('irc.rizon.net', 6667, 'NekoLoliBot', 'NLB', 'ToyBot', recv_queue, CHAN={'#RandStr':''})})
+        self.server_list.update({'irchighway': IRCServer('irc.irchighway.net', 6667, 'NekoLoliBot', 'NLB', 'ToyBot', recv_queue, CHAN={'#RandStr':''})})
+        for server_name in self.server_list:
+            self.server_list[server_name].connect()
         
 class IRCServer:
-    def __init__(self, HOST, PORT, NICK, IDENT, REALNAME, CHAN, recv_queue):
+    def __init__(self, HOST, PORT, NICK, IDENT, REALNAME, recv_queue, CHAN={}):
         self.HOST=HOST
         self.PORT=PORT
         self.NICK=NICK
@@ -41,7 +43,7 @@ class IRCServer:
                 #log.info('[Raw: %s]' % message_object.raw_message)
                 self.recv_queue.put((self, message_object))
                 if message_object.cmd == 'RPL_ENDOFMOTD' and self.connection_status == 0:
-                    self.join(self.CHAN);
+                    self.connect_channels();
                     self.connection_status = 1
                 elif self.connection_status == 1:
                     pass
@@ -53,6 +55,9 @@ class IRCServer:
         self.recv_thread.start()
         self.nick(self.NICK)
         self.user()
+    def connect_channels(self):
+        for channel in self.CHAN:
+            self.join(channel)
     def action(self, target, message):
         self.irc.send(bytes('PRIVMSG %s :\x01ACTION %s\x01\r\n' % (target, message), 'utf-8'))
         log.info('<< ACTION %s :%s' % (target, message))
@@ -72,17 +77,12 @@ class IRCServer:
     def invite(self, nickname, channel):
         self.irc.send(bytes('INVITE %s %s\r\n' % (nickname, channel), 'utf-8'))
         log.info('<< Inviting %s to %s' % (nickname, channel))
-    def ison(self, nicknames):
-        ## Nicknames must be in an array. 
-        nickname = ' '.join(nicknames)
+    def ison(self, nickname):
         self.irc.send(bytes('ISON %s\r\n' % nickname, 'utf-8'))
         log.info('<< Requesting if users are online: %s' % nickname)
-    def join(self, channels):
-        for channel in channels:
-            if channel not in self.CHAN:
-                self.CHAN.append(channel)
-            self.irc.send(bytes('JOIN %s\r\n' % channel, 'utf-8'))
-            log.info('<< Joining %s %s' % (self.HOST, channel))
+    def join(self, channel):
+        self.irc.send(bytes('JOIN %s\r\n' % channel, 'utf-8'))
+        log.info('<< Joining %s %s' % (self.HOST, channel))
     def kick(self, channel, client, message):
         if message:
             self.irc.send(bytes('KICK %s %s %s\r\n' % (channel, client, message), 'utf-8'))
@@ -97,18 +97,18 @@ class IRCServer:
         else:
             self.irc.send(bytes('MODE %s %s\r\n' % (target, flags), 'utf-8'))
             log.info('<< Setting %s on %s with args: %s' % (flags, target))
-    def names(self, channels):
-        self.irc.send(bytes('NAMES %s\r\n' % channels, 'utf-8'))
-        log.info('<< Requesting users on %s' % channels)
+    def names(self, channel):
+        self.irc.send(bytes('NAMES %s\r\n' % channel, 'utf-8'))
+        log.info('<< Requesting users on %s' % channel)
     def nick(self, NICK):
         self.irc.send(bytes('NICK %s\r\n' % NICK, 'utf-8'))
         log.info('<< Requesting nick %s' % NICK)
     def notice(self, target, message):
         self.irc.send(bytes('NOTICE %s :%s\r\n' % (target, message), 'utf-8'))
         log.info('<< NOTICE %s :%s' % (target, message))
-    def part(self, channels):
-        self.irc.send(bytes('PART %s\r\n' % channels, 'utf-8'))
-        log.info('<< Parting from %s' % channels)
+    def part(self, channel):
+        self.irc.send(bytes('PART %s\r\n' % channel, 'utf-8'))
+        log.info('<< Parting from %s' % channel)
     def ping(self, line):
         self.irc.send(bytes('PING %s\r\n' % line, 'utf-8'))
         log.info('<< PING %s' % line.split()[1])
@@ -124,27 +124,27 @@ class IRCServer:
     def user(self):
         self.irc.send(bytes('USER %s %s bla :%s \r\n' % (self.IDENT, self.HOST, self.REALNAME), 'utf-8'))
         log.info('<< Identiftying as %s' % self.IDENT)
-    def userhost(self, nicknames):
-        ## Nicknames must be in an array. 
-        nickname = ' '.join(nicknames)
+    def userhost(self, nickname):
         self.irc.send(bytes('USERHOST %s\r\n' % nickname, 'utf-8'))
         log.info('<< Requesting information of user: %s' % nickname)
     def who(self, search):
         self.irc.send(bytes('WHO %s\r\n' % search, 'utf-8'))
         log.info('<< Requesting users matching %s' % search)
-    def whois(self, nicknames):
-        self.irc.send(bytes('WHOIS %s\r\n' % nicknames, 'utf-8'))
-        log.info('<< Requesting whois user info for %s' % nicknames)
+    def whois(self, nickname):
+        self.irc.send(bytes('WHOIS %s\r\n' % nickname, 'utf-8'))
+        log.info('<< Requesting whois user info for %s' % nickname)
     def whowas(self, nickname):
         self.irc.send(bytes('WHOWAS %s\r\n' % nickname, 'utf-8'))
         log.info('<< Requesting whowas user info for %s' % nickname)
     def sendIRC(self, msg):
         self.irc.send(bytes('%s\r\n' % msg, 'utf-8'))
         log.info('<< Sending %s' % msg)
+"""
 class IRCChannel:
     def __init__(self, server):
         self.connection_status = 0
         print('')
+"""
 class IRCMessage:
     def __init__(self, message):
         self.raw_message = message
