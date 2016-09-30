@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import template
-import re, random
+import random, re
 
 class Persistent:
     def __init__(self):
@@ -11,7 +11,6 @@ persist = Persistent()
 
 
 class IRCScript(template.IRCScript):
-    global persist
     def privmsg(self, origin, target, msg):
         decisions = re.match('^-decide\s(?P<choices>.*)', msg, re.I)
         if decisions:
