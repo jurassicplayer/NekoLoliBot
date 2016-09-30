@@ -22,7 +22,9 @@ class PluginManager:
             log.info('>> Loaded plugin: %s' % plugin_name)
         except:
             e = sys.exc_info()
-            log.error('>> Failed to load plugin: (%s) "%s: %s"' % (plugin_name, str(e[0]).split("'")[1], e[1]))
+            error_string = '>> Plugin error: (%s) "%s: %s"' % (plugin_name, str(e[0]).split("'")[1], e[1])
+            log.error(error_string)
+            print(error_string)
     def unload_plugin(self, plugin_name):
         self.plugin_list.remove(plugin_name)
         del sys.modules[plugin_name]
@@ -54,30 +56,11 @@ class PluginManager:
     def process_data_thread(self, recv_queue):
         while 1:
             server, message = recv_queue.get()
-            plugin_msg = re.match('^.plugin\s(?P<command>\S+)\s(?P<plugins>.*)', message.trailing, re.I)
+            plugin_msg = re.match('^.plugin.*', message.trailing, re.I)
             if plugin_msg:
-                plugins = plugin_msg.group('plugins')
-                if plugins != 'all':
-                    plugins = plugins.replace('|', ' ').replace(',',' ')
-                    plugins = plugins.split(' ')
-                if plugin_msg.group('command') == 'load':
-                    if plugins == 'all':
-                        self.load_all_plugins()
-                    else:
-                        for plugin_name in plugins:
-                            self.load_plugin(plugin_name)
-                elif plugin_msg.group('command') == 'unload':
-                    if plugins == 'all':
-                        self.unload_all_plugins()
-                    else:
-                        for plugin_name in plugins:
-                            self.unload_plugin(plugin_name)
-                elif plugin_msg.group('command') == 'reload':
-                    if plugins == 'all':
-                        self.reload_all_plugins()
-                    else:
-                        for plugin_name in plugins:
-                            self.reload_plugin(plugin_name)
+                module = sys.modules['plugin']
+                p = module.IRCScript(server)
+                p.pluginmsg(self, message.prefix, message.user, message.host, message.cmd, message.params, message.trailing)
             else:
                 for plugin_name in self.plugin_list:
                     module = sys.modules[plugin_name]
